@@ -1,0 +1,129 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@600;700&display=swap");
+
+#passenger-public {
+  background-image: url("../assets/RiderHome.jpeg");
+  filter: blur(1px);
+  -webkit-filter: blur(1px);
+  background-position-y: -130px;
+}
+
+#driver-public {
+  background-image: url("../assets/DriverHome.jpeg");
+  filter: blur(1px);
+  -webkit-filter: blur(1px);
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  background-color: #000;
+}
+
+.navbar {
+  background-color: #fff;
+  position: absolute;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 14px 0px;
+  z-index: 100;
+}
+
+.nav-logo {
+  height: 58px;
+  width: 152px;
+  margin: 4px 30px 0px 30px;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: flex;
+  align-self: flex-end;
+  gap: 40px;
+  margin-bottom: 5px;
+  margin-right: 80px;
+  margin-left: auto;
+}
+
+.nav-link,
+.nav-link:link,
+.nav-link:visited,
+.nav-link {
+  font-size: 34px;
+  font-family: "Bebas Neue", cursive;
+  text-decoration: none;
+}
+
+.navbar button {
+  background-color: #30c8ea;
+  padding: 12px 30px;
+  border: 0;
+  border-radius: 24px;
+  font-size: 18px;
+  color: #fff;
+  margin-right: 50px;
+  cursor: pointer;
+}
+
+.image-overlay {
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: 0;
+}
+
+.hero-section {
+  position: relative;
+  font-family: "IBM Plex Sans", sans-serif;
+  color: white;
+  height: 590px;
+  top: 95px;
+  padding: 20px 50px;
+}
+
+.home-title {
+  font-weight: bold;
+  font-size: 70px;
+  margin-top: 120px;
+  margin-left: 100px;
+}
+
+.home-subtitle {
+  font-weight: 600;
+  font-size: 30px;
+  margin-top: 12px;
+  margin-left: 106px;
+}
+
+.public-register-btn {
+  padding: 14px 42px;
+  border: 0;
+  border-radius: 28px;
+  font-size: 24px;
+  color: #fff;
+  margin-right: 50px;
+  cursor: pointer;
+  margin-top: 32px;
+  margin-left: 100px;
+}
+
+#passenger-register-btn {
+  background-color: #30c8ea;
+}
+
+#driver-register-btn {
+  background-color: #0dc2ad;
+}
