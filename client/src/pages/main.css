@@ -13,6 +13,14 @@
   -webkit-filter: blur(1px);
 }
 
+#passenger-login {
+  background-color: #30c8ea;
+}
+
+#driver-login {
+  background-color: #0dc2ad;
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -62,13 +70,14 @@ body {
   text-decoration: none;
 }
 
-.navbar button {
-  background-color: #30c8ea;
+.sign-in-btn {
   padding: 12px 30px;
   border: 0;
   border-radius: 24px;
   font-size: 18px;
+  font-family: "IBM Plex Sans", sans-serif;
   color: #fff;
+  text-decoration: none;
   margin-right: 50px;
   cursor: pointer;
 }
@@ -85,7 +94,7 @@ body {
   z-index: 0;
 }
 
-.hero-section {
+.main {
   position: relative;
   font-family: "IBM Plex Sans", sans-serif;
   color: white;
@@ -120,10 +129,78 @@ body {
   margin-left: 100px;
 }
 
-#passenger-register-btn {
-  background-color: #30c8ea;
+.passenger-btn {
+  background-color: #30c8ea !important;
 }
 
-#driver-register-btn {
-  background-color: #0dc2ad;
+.driver-btn {
+  background-color: #0dc2ad !important;
+}
+
+.login-box {
+  background-color: #fff;
+  color: #000;
+  border-radius: 30px;
+  width: 400px;
+  margin: 80px auto;
+  padding: 60px;
+  padding-top: 40px;
+}
+
+.login-tab-switch {
+  display: flex;
+  font-size: 24px;
+  padding: 0px 20px;
+  margin-bottom: 20px;
+  justify-content: space-evenly;
+}
+
+.login-tab {
+  padding-bottom: 1px;
+  text-decoration: none;
+}
+
+.login-tab.active {
+  border-bottom: 2px solid black;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  font-size: 24px;
+}
+
+.login-form .label {
+  margin-top: 20px;
+  margin-left: 12px;
+}
+
+.login-form input {
+  margin-top: 8px;
+  background-color: #ededed;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 20px;
+  font-size: 18px;
+}
+
+.login-form-actions {
+  margin-top: 30px;
+  padding: 0;
+}
+
+.login-form-actions input {
+  padding: 12px 36px;
+  border: 0;
+  border-radius: 28px;
+  font-size: 18px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.signup-text,
+.signup-text:visited {
+  margin-left: 68px;
+  text-decoration: none;
+  font-size: 16px;
 }

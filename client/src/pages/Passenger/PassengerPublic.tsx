@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
-import { ReactComponent as Logo } from "../assets/ShrideLogo.svg";
-import "./main.css";
+import { ReactComponent as Logo } from "../../assets/ShrideLogo.svg";
+import "../main.css";
 
 const testfunc = () => {
   alert("hello");
@@ -21,19 +21,20 @@ const PassengerPublic = () => (
           For Drivers
         </NavLink>
       </div>
-      <button onClick={testfunc}>Sign In</button>
+      <NavLink to="passenger-login" className="sign-in-btn passenger-btn">
+        Sign In
+      </NavLink>
     </header>
     <body>
       <div id="passenger-public" className="image-overlay"></div>
-      <div className="hero-section">
+      <div className="main">
         <h1 className="home-title">
           Getting around <br />
           has never been easier
         </h1>
         <h2 className="home-subtitle">Hitch a ride whenever, wherever.</h2>
         <button
-          className="public-register-btn"
-          id="passenger-register-btn"
+          className="public-register-btn passenger-btn"
           onClick={testfunc}
         >
           Register
