@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -37,7 +38,6 @@ func getTokenFromHeader(r *http.Request) string {
     }
 	return "INVALID"
 }
-
 
 // UID: a 16 char hexadecimal string
 func generateUID() string{
@@ -130,11 +130,24 @@ func DB_getPassengerByEmail(email string) passengerDetails {
 	return p
 }
 
+func DB_createPassenger(acc passengerDetails) bool {
+	acc.UID = generateUID()
+	queryString := fmt.Sprintf("INSERT INTO Passengers (UID, FirstName, LastName, Phone, Email) VALUES ('%s', '%s', '%s', '%s', '%s');",
+								acc.UID, acc.FirstName, acc.LastName, acc.Phone, acc.Email)
+	_, err := db.Query(queryString) 
+
+    if err != nil {
+        fmt.Println(err.Error())
+		return true
+    }
+	return false
+}
+
 func DB_editPassengerByEmail() { //TODO
 	fmt.Println("TODO")
 }
 
-func login(w http.ResponseWriter, r *http.Request) { // TODO
+func login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		fmt.Println("Received LOGIN GET request for INSERT_ID_HERE")
 		if r.Header.Get("Content-type")=="application/json" {
@@ -180,7 +193,7 @@ func login(w http.ResponseWriter, r *http.Request) { // TODO
 	}
 }
 
-func register(w http.ResponseWriter, r *http.Request) { // TODO
+func register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		fmt.Println("Received REGISTER PUT request")
 		if r.Header.Get("Content-type")=="application/json" {
@@ -191,13 +204,24 @@ func register(w http.ResponseWriter, r *http.Request) { // TODO
 				json.Unmarshal(reqBody, &acc) 
 				// validate registration details
 				if (acc.Email == "" || acc.Phone == "" || acc.FirstName == "" || acc.LastName == "") {
-					fmt.Println("WRONG")
 					w.WriteHeader(http.StatusBadRequest)
                 	w.Write([]byte("400 - Account details incomplete"))
+				} else {
+					// check if email is already registered
+					if dbEntry := DB_getPassengerByEmail(acc.Email); dbEntry.Email == "" {
+						// update database with new passenger entry
+						if err := DB_createPassenger(acc); err {
+							w.WriteHeader(http.StatusInternalServerError)
+							w.Write([]byte("500 - Error creating passenger entry, please try again"))
+						} else {
+							// successfully created passenger entry
+							w.WriteHeader(http.StatusOK)
+						}
+					} else {
+						w.WriteHeader(http.StatusBadRequest)
+						w.Write([]byte("400 - Account already registered"))
+					}
 				}
-				// TODO: CHECK EMAIL NOT IN DATABASE, RETURN ERROR
-				// TODO: UPDATE DATABASE WITH NEW ENTRIES
-				w.WriteHeader(http.StatusOK)
 			} else {
                 w.WriteHeader(http.StatusUnprocessableEntity)
                 w.Write([]byte("422 - Account details should be in JSON format"))
@@ -245,16 +269,19 @@ func edit(w http.ResponseWriter, r *http.Request) { // TODO
 	}
 }
 
-// LET KEY = UNIQUE ID, WHERE ID = EMAIL HASHED WITH PHONE NO. AS SALT
 func main() {
-	router := mux.NewRouter()
+	// initialize variables
 	tokenMap = make(map[string]string)
 	onlineUsers = make(map[string]string)
+	rand.Seed(time.Now().UnixNano())
 
+	// setup API routers
+	router := mux.NewRouter()
     router.HandleFunc("/api/v1/passenger", login).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/{userid}", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
 
+	// establish database connection
 	var err error
 	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/passenger_db")
 	if err != nil {
