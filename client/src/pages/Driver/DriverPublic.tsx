@@ -25,7 +25,7 @@ const DriverPublic = () => (
         Sign In
       </NavLink>
     </header>
-    <body>
+    <div>
       <div id="driver-public" className="image-overlay"></div>
       <div className="main">
         <h1 className="home-title">
@@ -37,7 +37,7 @@ const DriverPublic = () => (
           Register
         </button>
       </div>
-    </body>
+    </div>
   </>
 );
 

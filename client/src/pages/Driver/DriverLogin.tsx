@@ -18,7 +18,7 @@ const PassengerLogin = () => (
       </div>
       <button className="sign-in-btn driver-btn">Sign In</button>
     </header>
-    <body>
+    <div>
       <div id="driver-login" className="image-overlay"></div>
       <div className="main">
         <div className="login-box">
@@ -57,7 +57,7 @@ const PassengerLogin = () => (
           </form>
         </div>
       </div>
-    </body>
+    </div>
   </>
 );
 

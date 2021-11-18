@@ -25,7 +25,7 @@ const PassengerPublic = () => (
         Sign In
       </NavLink>
     </header>
-    <body>
+    <div>
       <div id="passenger-public" className="image-overlay"></div>
       <div className="main">
         <h1 className="home-title">
@@ -40,7 +40,7 @@ const PassengerPublic = () => (
           Register
         </button>
       </div>
-    </body>
+    </div>
   </>
 );
 
