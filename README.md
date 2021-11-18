@@ -14,6 +14,7 @@ Install the necessary go libaries by following the commands below:
 go get -u github.com/gin-gonic/contrib/static
 go get -u github.com/gin-gonic/gin
 go get -u github.com/gorilla/mux
+go get -u github.com/gorilla/handlers
 go get -u github.com/go-sql-driver/mysql
 ```
 
