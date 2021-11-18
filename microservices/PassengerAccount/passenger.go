@@ -11,6 +11,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -103,7 +104,7 @@ func verifyToken(token string) bool {
 	return ok
 }
 
-func printMap(mapObj map[string]string) { // TODO: remove this after debug
+func printMap(mapObj map[string]string) {
 	fmt.Println("========================\nPrinting token map")
 	for k, v := range mapObj {
 		fmt.Println("Token:", k, "User:", v)
@@ -143,19 +144,36 @@ func DB_createPassenger(acc passengerDetails) bool {
 	return false
 }
 
-func DB_editPassengerByEmail() { //TODO
-	fmt.Println("TODO")
+func DB_editPassengerByUID(uid string, acc passengerDetails) bool {
+	relevantFields := ""
+	if acc.Email != "" { relevantFields += " Email='" + acc.Email + "'," }
+	if acc.Phone != "" { relevantFields += " Phone='" + acc.Phone + "'," }
+	if acc.FirstName != "" { relevantFields += " FirstName='" + acc.FirstName + "'," }
+	if acc.LastName != "" { relevantFields += " LastName='" + acc.LastName + "'," }
+	// remove trailing "," if present
+	if last := len(relevantFields) - 1; last >= 0 && relevantFields[last] == ',' {
+        relevantFields = relevantFields[:last]
+    }
+	queryString := fmt.Sprintf("UPDATE Passengers SET" + relevantFields + " WHERE UID='%s'", uid)
+
+	_, err := db.Query(queryString)   
+	if err != nil {
+		fmt.Println(err.Error())
+		return true
+	}
+	return false		
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		fmt.Println("Received LOGIN GET request for INSERT_ID_HERE")
+	if r.Method == "POST" {
+		fmt.Println("Received LOGIN POST request for INSERT_ID_HERE")
 		if r.Header.Get("Content-type")=="application/json" {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
 				// convert JSON to object
 				var credentials loginCredentials
 				json.Unmarshal(reqBody, &credentials) 
+				fmt.Println("RECEIVED: ", credentials)
 				
 				// get passenger's record from database
 				p := DB_getPassengerByEmail(credentials.Email)
@@ -236,9 +254,10 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func edit(w http.ResponseWriter, r *http.Request) { // TODO
+func edit(w http.ResponseWriter, r *http.Request) {
 	token := getTokenFromHeader(r)
-	if token == "INVALID" { // TODO: VERIFY TOKEN
+	existingUID := tokenMap[token]
+	if existingUID == "" {
         w.WriteHeader(http.StatusNotFound)
         w.Write([]byte("401 - Invalid key"))
         return
@@ -252,9 +271,26 @@ func edit(w http.ResponseWriter, r *http.Request) { // TODO
 				// convert JSON to object
 				var acc passengerDetails
 				json.Unmarshal(reqBody, &acc) 
-				// TODO: CHECK EMAIL NOT IN DATABASE, RETURN ERROR
-				// TODO: UPDATE DATABASE WITH NEW ENTRIES
-				w.WriteHeader(http.StatusOK)
+				// undo operation if all fields are empty
+				if acc.Email == "" && acc.Phone == "" && acc.FirstName == "" && acc.LastName == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("400 - There are no valid fields provided"))
+					return
+				}
+				// check if email is already taken
+				if dbEntry := DB_getPassengerByEmail(acc.Email); dbEntry.Email == "" {
+					// update database entry by UID
+					if err := DB_editPassengerByUID(existingUID, acc); err {
+						w.WriteHeader(http.StatusInternalServerError)
+						w.Write([]byte("500 - Error updating account details, please try again"))
+					} else {
+						// successfully updated passenger details
+						w.WriteHeader(http.StatusOK)
+					}
+				} else {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("400 - This email has already been registered in another account"))
+				}
 			} else {
                 w.WriteHeader(http.StatusUnprocessableEntity)
                 w.Write([]byte("422 - Account details should be in JSON format"))
@@ -277,8 +313,8 @@ func main() {
 
 	// setup API routers
 	router := mux.NewRouter()
-    router.HandleFunc("/api/v1/passenger", login).Methods("GET")
-	router.HandleFunc("/api/v1/passenger/{userid}", edit).Methods("PUT")
+    router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
 
 	// establish database connection
@@ -289,6 +325,9 @@ func main() {
 	} 
 	defer db.Close()
 
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
+	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT"})
 	fmt.Println("Serving passenger account API at port 5001")
-    log.Fatal(http.ListenAndServe(":5001", router))
+    log.Fatal(http.ListenAndServe(":5001", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }
