@@ -204,3 +204,25 @@ body {
   text-decoration: none;
   font-size: 16px;
 }
+
+.request-trip-section {
+  background-color: #fff;
+  border-radius: 25px;
+  color: #000;
+  height: 100%;
+  width: 50%;
+}
+
+.request-trip-inner {
+  padding: 14% 18%;
+}
+
+.request-trip-inner h1 {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.request-trip-inner .request-btn {
+  margin: 30px 30% 0px 30%;
+  font-size: 20px;
+}
