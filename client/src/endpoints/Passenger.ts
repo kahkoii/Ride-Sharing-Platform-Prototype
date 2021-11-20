@@ -16,4 +16,18 @@ const postLogin = async (email: string, phone: string) => {
   return res;
 };
 
-export { postLogin };
+const postLogout = async (token: string) => {
+  console.log("LOGGING OUT TOKEN: " + token);
+  const raw = await axios({
+    method: "post",
+    url: baseURL + "/logout",
+    headers: { "Content-Type": "application/json" },
+    data: JSON.stringify({
+      token,
+    }),
+  });
+  const res = raw;
+  return res;
+};
+
+export { postLogin, postLogout };

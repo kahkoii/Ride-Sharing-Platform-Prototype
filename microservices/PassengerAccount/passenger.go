@@ -28,6 +28,10 @@ type passengerDetails struct {
 	Email string `json:"email"`
 }
 
+type tokenString struct {
+	Token string `json:"token"`
+}
+
 var tokenMap map[string]string
 var onlineUsers map[string]string
 var db *sql.DB
@@ -105,11 +109,11 @@ func verifyToken(token string) bool {
 }
 
 func printMap(mapObj map[string]string) {
-	fmt.Println("========================\nPrinting token map")
+	fmt.Println("=================================================\n[Current valid tokens]")
 	for k, v := range mapObj {
 		fmt.Println("Token:", k, "User:", v)
 	}
-	fmt.Println("========================")
+	fmt.Println("=================================================")
 }
 
 func DB_getPassengerByEmail(email string) passengerDetails {
@@ -166,7 +170,7 @@ func DB_editPassengerByUID(uid string, acc passengerDetails) bool {
 
 func login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		fmt.Println("Received LOGIN POST request for INSERT_ID_HERE")
+		fmt.Println("Received LOGIN POST request")
 		if r.Header.Get("Content-type")=="application/json" {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
@@ -200,6 +204,44 @@ func login(w http.ResponseWriter, r *http.Request) {
 			} else {
                 w.WriteHeader(http.StatusUnprocessableEntity)
                 w.Write([]byte("422 - Credentials should be in JSON format"))
+            }
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+        	w.Write([]byte("400 - Header content type not application/json"))
+		}
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+	}
+}
+
+func logout(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		fmt.Println("Received LOGOUT POST request")
+		if r.Header.Get("Content-type")=="application/json" {
+			reqBody, err := ioutil.ReadAll(r.Body)
+			if err == nil {
+				// convert JSON to object
+				var tokenObj tokenString
+				json.Unmarshal(reqBody, &tokenObj)
+				token := tokenObj.Token
+				if tokenObj.Token == "" {
+					w.WriteHeader(http.StatusBadRequest)
+        			w.Write([]byte("400 - No token received"))
+				} else {
+					if verifyToken(token) {
+						fmt.Println("Removing token: ", token)
+						disableToken(token)
+						printMap(tokenMap)
+					} else {
+						w.WriteHeader(http.StatusBadRequest)
+        				w.Write([]byte("400 - Invalid token"))
+					}
+					
+				}
+			} else {
+                w.WriteHeader(http.StatusUnprocessableEntity)
+                w.Write([]byte("422 - Logout token should be in JSON format"))
             }
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
@@ -314,6 +356,7 @@ func main() {
 	// setup API routers
 	router := mux.NewRouter()
     router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
 
