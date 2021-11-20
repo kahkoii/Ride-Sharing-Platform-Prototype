@@ -13,11 +13,11 @@
   -webkit-filter: blur(1px);
 }
 
-#passenger-login {
+.passenger-bg {
   background-color: #30c8ea;
 }
 
-#driver-login {
+.driver-bg {
   background-color: #0dc2ad;
 }
 

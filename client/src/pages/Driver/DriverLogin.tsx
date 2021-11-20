@@ -19,7 +19,7 @@ const PassengerLogin = () => (
       <button className="sign-in-btn driver-btn">Sign In</button>
     </header>
     <div>
-      <div id="driver-login" className="image-overlay"></div>
+      <div className="image-overlay driver-bg"></div>
       <div className="main">
         <div className="login-box">
           <div className="login-tab-switch">

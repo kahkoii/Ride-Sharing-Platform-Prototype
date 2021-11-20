@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import PassengerPublic from "./Passenger/PassengerPublic";
 import DriverPublic from "./Driver/DriverPublic";
 import PassengerLogin from "./Passenger/PassengerLogin";
+import PassengerHome from "./Passenger/PassengerHome";
 import DriverLogin from "./Driver/DriverLogin";
 import MissingPage from "./MissingPage";
 
@@ -37,16 +38,16 @@ const App: React.FC = () => {
           <Route
             path="/passenger"
             element={
-              <div style={{ backgroundColor: "white" }}>hi im passenger</div>
+              <PassengerHome setIsPassengerLoggedIn={setIsPassengerLoggedIn} />
             }
           />
-          <Route path="*" element={<MissingPage />} />
+          <Route path="*" element={<MissingPage rootPath="/passenger" />} />
         </Routes>
       )}
       {isDriverLoggedIn && (
         <Routes>
-          <Route path="/driver" element={<div>hi im passenger</div>} />
-          <Route path="*" element={<div>bitch what</div>} />
+          <Route path="/driver" element={<div>hi im driver</div>} />
+          <Route path="*" element={<MissingPage rootPath="/driver" />} />
         </Routes>
       )}
       {!isPassengerLoggedIn && !isDriverLoggedIn && (
@@ -60,7 +61,7 @@ const App: React.FC = () => {
               <PassengerLogin setIsPassengerLoggedIn={setIsPassengerLoggedIn} />
             }
           />
-          <Route path="*" element={<MissingPage />} />
+          <Route path="*" element={<MissingPage rootPath="/" />} />
         </Routes>
       )}
     </Router>

@@ -1,4 +1,4 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { ReactComponent as Logo } from "../../assets/ShrideLogo.svg";
 import { postLogin } from "../../endpoints/Passenger";
 import Cookies from "universal-cookie/es6";
@@ -10,16 +10,19 @@ interface loginProps {
 
 const PassengerLogin = (props: loginProps) => {
   const cookies = new Cookies();
+  const navigate = useNavigate();
+
   const handleSubmit = (event: any) => {
+    event.preventDefault();
     postLogin(event.target.email.value, event.target.phone.value)
       .then((res) => {
         cookies.set("token", res.data);
         props.setIsPassengerLoggedIn(true);
+        navigate("/passenger");
       })
       .catch((err) => {
-        console.log("Login error: ", err);
+        alert(err.response.data);
       });
-    event.preventDefault();
   };
 
   return (
@@ -39,7 +42,7 @@ const PassengerLogin = (props: loginProps) => {
         <button className="sign-in-btn passenger-btn">Sign In</button>
       </header>
       <div>
-        <div id="passenger-login" className="image-overlay"></div>
+        <div className="image-overlay passenger-bg"></div>
         <div className="main">
           <div className="login-box">
             <div className="login-tab-switch">
