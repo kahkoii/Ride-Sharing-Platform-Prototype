@@ -147,6 +147,20 @@ body {
   padding-top: 40px;
 }
 
+.registration-box {
+  background-color: #fff;
+  color: #000;
+  border-radius: 30px;
+  width: 600px;
+  margin: 40px auto;
+  padding: 60px 40px;
+}
+
+.registration-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
 .login-tab-switch {
   display: flex;
   font-size: 24px;
@@ -175,6 +189,12 @@ body {
   margin-left: 12px;
 }
 
+.registration-form .label {
+  margin-top: 10px;
+  margin-left: 12px;
+  width: 80px;
+}
+
 .login-form input {
   margin-top: 8px;
   background-color: #ededed;
@@ -184,12 +204,33 @@ body {
   font-size: 18px;
 }
 
+.registration-form-row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+
+.registration-form input {
+  margin-top: 4px;
+  background-color: #ededed;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
 .login-form-actions {
   margin-top: 30px;
   padding: 0;
 }
 
-.login-form-actions input {
+.registration-form-actions {
+  margin-top: 30px;
+  padding-left: 20%;
+}
+
+.login-form-actions input,
+.registration-form-actions input {
   padding: 12px 36px;
   border: 0;
   border-radius: 28px;

@@ -75,7 +75,7 @@ const PassengerLogin = (props: loginProps) => {
               />
               <div className="login-form-actions">
                 <input type="submit" className="passenger-btn" />
-                <Link to="/passenger-signup" className="signup-text">
+                <Link to="/passenger-register" className="signup-text">
                   No account? Sign up here
                 </Link>
               </div>

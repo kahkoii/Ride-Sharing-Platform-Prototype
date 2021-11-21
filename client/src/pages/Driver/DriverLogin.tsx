@@ -50,7 +50,7 @@ const PassengerLogin = () => (
 
             <div className="login-form-actions">
               <input type="submit" value="Submit" className="driver-btn" />
-              <Link to="/driver-signup" className="signup-text">
+              <Link to="/driver-register" className="signup-text">
                 No account? Sign up here
               </Link>
             </div>

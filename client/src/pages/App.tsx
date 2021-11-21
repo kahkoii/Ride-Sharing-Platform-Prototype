@@ -7,11 +7,12 @@ import {
 import { useState, useEffect } from "react";
 import { apiVerifyToken } from "../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
-import PassengerPublic from "./Passenger/PassengerPublic";
 import DriverPublic from "./Driver/DriverPublic";
+import DriverLogin from "./Driver/DriverLogin";
+import PassengerPublic from "./Passenger/PassengerPublic";
+import PassengerRegister from "./Passenger/PassengerRegister";
 import PassengerLogin from "./Passenger/PassengerLogin";
 import PassengerHome from "./Passenger/PassengerHome";
-import DriverLogin from "./Driver/DriverLogin";
 import MissingPage from "./MissingPage";
 
 const App: React.FC = () => {
@@ -79,6 +80,14 @@ const App: React.FC = () => {
           <Route path="/" element={<PassengerPublic />} />
           <Route path="for-drivers" element={<DriverPublic />} />
           <Route path="driver-login" element={<DriverLogin />} />
+          <Route
+            path="passenger-register"
+            element={
+              <PassengerRegister
+                setIsPassengerLoggedIn={setIsPassengerLoggedIn}
+              />
+            }
+          />
           <Route
             path="passenger-login"
             element={
