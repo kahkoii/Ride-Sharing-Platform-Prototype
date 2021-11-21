@@ -1,4 +1,4 @@
-import MainNavbar from "./MainNavbar";
+import MainNavbar from "./PassengerNavbar";
 import "../main.css";
 
 interface passengerMainProps {
