@@ -5,17 +5,41 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
+import Cookies from "universal-cookie/es6";
 import PassengerPublic from "./Passenger/PassengerPublic";
 import DriverPublic from "./Driver/DriverPublic";
 import PassengerLogin from "./Passenger/PassengerLogin";
 import PassengerHome from "./Passenger/PassengerHome";
 import DriverLogin from "./Driver/DriverLogin";
 import MissingPage from "./MissingPage";
+import { tokenIsValid } from "../endpoints/Accounts";
 
 const App: React.FC = () => {
   const [isPassengerLoggedIn, setIsPassengerLoggedIn] =
     useState<Boolean>(false);
   const [isDriverLoggedIn, setIsDriverLoggedIn] = useState<Boolean>(false);
+  const cookies = new Cookies();
+  // login user if token still valid
+  useEffect(() => {
+    var x = cookies.get("ptoken");
+    if (x !== undefined) {
+      tokenIsValid(x, "passenger").then((res) => {
+        if (res.status === 200) {
+          setIsPassengerLoggedIn(true);
+        }
+      });
+    } else {
+      x = cookies.get("dtoken");
+      if (x !== undefined) {
+        tokenIsValid(x, "driver").then((res) => {
+          if (res.status === 200) {
+            setIsDriverLoggedIn(true);
+          }
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isPassengerLoggedIn) {

@@ -102,9 +102,8 @@ func disableToken(token string) {
 	delete(tokenMap, token)
 }
 
-func verifyToken(token string) bool {
+func tokenIsValid(token string) bool {
 	_, ok := tokenMap[token]
-	fmt.Println("verifying token")
 	return ok
 }
 
@@ -229,10 +228,11 @@ func logout(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(http.StatusBadRequest)
         			w.Write([]byte("400 - No token received"))
 				} else {
-					if verifyToken(token) {
+					if tokenIsValid(token) {
 						fmt.Println("Removing token: ", token)
 						disableToken(token)
 						printMap(tokenMap)
+						w.WriteHeader(http.StatusOK)
 					} else {
 						w.WriteHeader(http.StatusBadRequest)
         				w.Write([]byte("400 - Invalid token"))
@@ -242,6 +242,41 @@ func logout(w http.ResponseWriter, r *http.Request) {
 			} else {
                 w.WriteHeader(http.StatusUnprocessableEntity)
                 w.Write([]byte("422 - Logout token should be in JSON format"))
+            }
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+        	w.Write([]byte("400 - Header content type not application/json"))
+		}
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+	}
+}
+
+func verifyToken(w http.ResponseWriter, r *http.Request) { // TODO
+	if r.Method == "POST" {
+		fmt.Println("Received LOGOUT POST request")
+		if r.Header.Get("Content-type")=="application/json" {
+			reqBody, err := ioutil.ReadAll(r.Body)
+			if err == nil {
+				// convert JSON to object
+				var tokenObj tokenString
+				json.Unmarshal(reqBody, &tokenObj)
+				token := tokenObj.Token
+				if tokenObj.Token == "" {
+					w.WriteHeader(http.StatusBadRequest)
+        			w.Write([]byte("400 - No token received"))
+				} else {
+					if tokenIsValid(token) {
+						w.WriteHeader(http.StatusOK)
+					} else {
+						w.WriteHeader(http.StatusBadRequest)
+        				w.Write([]byte("400 - Invalid token"))
+					}
+				}
+			} else {
+                w.WriteHeader(http.StatusUnprocessableEntity)
+                w.Write([]byte("422 - Token should be in JSON format"))
             }
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
@@ -357,6 +392,7 @@ func main() {
 	router := mux.NewRouter()
     router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
 
