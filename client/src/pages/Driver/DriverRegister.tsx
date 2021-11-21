@@ -25,8 +25,8 @@ const DriverRegister = (props: registerProps) => {
     apiRegister("driver", accJSON)
       .then((res) => {
         apiLogin(accJSON.email, accJSON.phone, "driver").then((res) => {
-          cookies.set("ptoken", res.data);
-          cookies.remove("dtoken");
+          cookies.set("dtoken", res.data);
+          cookies.remove("ptoken");
           props.setIsDriverLoggedIn(true);
         });
         navigate("/driver");

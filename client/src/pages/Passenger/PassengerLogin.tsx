@@ -60,7 +60,6 @@ const PassengerLogin = (props: loginProps) => {
               <input
                 type="email"
                 name="email"
-                id="userEmail"
                 placeholder="example@domain.com"
                 required
               />
@@ -68,7 +67,6 @@ const PassengerLogin = (props: loginProps) => {
               <input
                 type="text"
                 name="phone"
-                id="phoneNumber"
                 pattern="[0-9]{8}"
                 placeholder="91234567"
                 required

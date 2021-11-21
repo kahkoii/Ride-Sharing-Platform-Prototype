@@ -10,6 +10,7 @@ import Cookies from "universal-cookie/es6";
 import DriverPublic from "./Driver/DriverPublic";
 import DriverLogin from "./Driver/DriverLogin";
 import DriverRegister from "./Driver/DriverRegister";
+import DriverHome from "./Driver/DriverHome";
 import PassengerPublic from "./Passenger/PassengerPublic";
 import PassengerRegister from "./Passenger/PassengerRegister";
 import PassengerLogin from "./Passenger/PassengerLogin";
@@ -72,7 +73,10 @@ const App: React.FC = () => {
       )}
       {isDriverLoggedIn && (
         <Routes>
-          <Route path="/driver" element={<div>hi im driver</div>} />
+          <Route
+            path="/driver"
+            element={<DriverHome setIsDriverLoggedIn={setIsDriverLoggedIn} />}
+          />
           <Route path="*" element={<MissingPage rootPath="/driver" />} />
         </Routes>
       )}
@@ -80,7 +84,10 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<PassengerPublic />} />
           <Route path="for-drivers" element={<DriverPublic />} />
-          <Route path="driver-login" element={<DriverLogin />} />
+          <Route
+            path="driver-login"
+            element={<DriverLogin setIsDriverLoggedIn={setIsDriverLoggedIn} />}
+          />
           <Route
             path="driver-register"
             element={
