@@ -1,6 +1,6 @@
 import { useNavigate, NavLink } from "react-router-dom";
 import Cookies from "universal-cookie/es6";
-import { postLogout } from "../../endpoints/Accounts";
+import { apiLogout } from "../../endpoints/Accounts";
 import { ReactComponent as Logo } from "../../assets/ShrideLogo.svg";
 import "../main.css";
 
@@ -14,7 +14,7 @@ const MainNavbar = (props: MainNavbarProps) => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    postLogout(cookies.get("ptoken"), "passenger")
+    apiLogout(cookies.get("ptoken"), "passenger")
       .then((res) => {
         props.setIsPassengerLoggedIn(false);
         navigate("/");

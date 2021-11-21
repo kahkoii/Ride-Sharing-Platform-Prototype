@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { apiVerifyToken } from "../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
 import PassengerPublic from "./Passenger/PassengerPublic";
 import DriverPublic from "./Driver/DriverPublic";
@@ -12,7 +13,6 @@ import PassengerLogin from "./Passenger/PassengerLogin";
 import PassengerHome from "./Passenger/PassengerHome";
 import DriverLogin from "./Driver/DriverLogin";
 import MissingPage from "./MissingPage";
-import { tokenIsValid } from "../endpoints/Accounts";
 
 const App: React.FC = () => {
   const [isPassengerLoggedIn, setIsPassengerLoggedIn] =
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   useEffect(() => {
     var x = cookies.get("ptoken");
     if (x !== undefined) {
-      tokenIsValid(x, "passenger").then((res) => {
+      apiVerifyToken(x, "passenger").then((res) => {
         if (res.status === 200) {
           setIsPassengerLoggedIn(true);
         }
@@ -31,7 +31,7 @@ const App: React.FC = () => {
     } else {
       x = cookies.get("dtoken");
       if (x !== undefined) {
-        tokenIsValid(x, "driver").then((res) => {
+        apiVerifyToken(x, "driver").then((res) => {
           if (res.status === 200) {
             setIsDriverLoggedIn(true);
           }

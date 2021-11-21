@@ -3,7 +3,7 @@ import axios from "axios";
 const passengerBaseURL = "http://localhost:5001/api/v1/passenger";
 const driverBaseURL = "http://localhost:5001/api/v1/passenger";
 
-const postLogin = async (email: string, phone: string, accType: string) => {
+const apiLogin = async (email: string, phone: string, accType: string) => {
   const res = await axios({
     method: "post",
     url:
@@ -17,7 +17,7 @@ const postLogin = async (email: string, phone: string, accType: string) => {
   return res;
 };
 
-const postLogout = async (token: string, accType: string) => {
+const apiLogout = async (token: string, accType: string) => {
   const res = await axios({
     method: "post",
     url:
@@ -30,7 +30,7 @@ const postLogout = async (token: string, accType: string) => {
   return res;
 };
 
-const tokenIsValid = async (token: string, accType: string) => {
+const apiVerifyToken = async (token: string, accType: string) => {
   const res = await axios({
     method: "post",
     url:
@@ -43,4 +43,4 @@ const tokenIsValid = async (token: string, accType: string) => {
   return res;
 };
 
-export { postLogin, postLogout, tokenIsValid };
+export { apiLogin, apiLogout, apiVerifyToken };
