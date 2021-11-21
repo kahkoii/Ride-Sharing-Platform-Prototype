@@ -5,10 +5,10 @@ import Cookies from "universal-cookie/es6";
 import "../main.css";
 
 interface registerProps {
-  setIsPassengerLoggedIn: React.Dispatch<React.SetStateAction<Boolean>>;
+  setIsDriverLoggedIn: React.Dispatch<React.SetStateAction<Boolean>>;
 }
 
-const PassengerRegister = (props: registerProps) => {
+const DriverRegister = (props: registerProps) => {
   const cookies = new Cookies();
   const navigate = useNavigate();
 
@@ -19,15 +19,17 @@ const PassengerRegister = (props: registerProps) => {
       phone: event.target.phone.value,
       firstName: event.target.firstName.value,
       lastName: event.target.lastName.value,
+      id: event.target.id.value,
+      licenseNo: event.target.licenseNo.value,
     };
-    apiRegister("passenger", accJSON)
+    apiRegister("driver", accJSON)
       .then((res) => {
-        apiLogin(accJSON.email, accJSON.phone, "passenger").then((res) => {
+        apiLogin(accJSON.email, accJSON.phone, "driver").then((res) => {
           cookies.set("ptoken", res.data);
           cookies.remove("dtoken");
-          props.setIsPassengerLoggedIn(true);
+          props.setIsDriverLoggedIn(true);
         });
-        navigate("/passenger");
+        navigate("/driver");
       })
       .catch((err) => {
         alert(err.response.data);
@@ -48,20 +50,20 @@ const PassengerRegister = (props: registerProps) => {
             For Drivers
           </NavLink>
         </div>
-        <NavLink to="/passenger-login" className="sign-in-btn passenger-btn">
+        <NavLink to="/driver-login" className="sign-in-btn driver-btn">
           Sign In
         </NavLink>
       </header>
       <div>
-        <div className="image-overlay passenger-bg"></div>
+        <div className="image-overlay driver-bg"></div>
         <div className="main">
           <div className="registration-box">
             <h1 className="registration-title">Account Registration</h1>
             <div className="login-tab-switch">
-              <Link to="/passenger-register" className="login-tab active">
+              <Link to="/passenger-register" className="login-tab">
                 Passenger
               </Link>
-              <Link to="/driver-register" className="login-tab">
+              <Link to="/driver-register" className="login-tab active">
                 Driver
               </Link>
             </div>
@@ -95,9 +97,20 @@ const PassengerRegister = (props: registerProps) => {
                 <h5 className="label">Last Name</h5>
                 <input type="text" name="lastName" placeholder="Tan" required />
               </div>
+              <div className="registration-form-row">
+                <h5 className="label">ID</h5>
+                <input type="text" name="ID" placeholder="T0201234A" required />
+                <h5 className="label">Car License</h5>
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="SGX1234R"
+                  required
+                />
+              </div>
               <div className="registration-form-actions">
-                <input type="submit" className="passenger-btn" />
-                <Link to="/passenger-login" className="signup-text">
+                <input type="submit" className="driver-btn" />
+                <Link to="/driver-login" className="signup-text">
                   Login with existing account
                 </Link>
               </div>
@@ -109,4 +122,4 @@ const PassengerRegister = (props: registerProps) => {
   );
 };
 
-export default PassengerRegister;
+export default DriverRegister;

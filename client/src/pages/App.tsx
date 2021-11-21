@@ -9,6 +9,7 @@ import { apiVerifyToken } from "../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
 import DriverPublic from "./Driver/DriverPublic";
 import DriverLogin from "./Driver/DriverLogin";
+import DriverRegister from "./Driver/DriverRegister";
 import PassengerPublic from "./Passenger/PassengerPublic";
 import PassengerRegister from "./Passenger/PassengerRegister";
 import PassengerLogin from "./Passenger/PassengerLogin";
@@ -80,6 +81,12 @@ const App: React.FC = () => {
           <Route path="/" element={<PassengerPublic />} />
           <Route path="for-drivers" element={<DriverPublic />} />
           <Route path="driver-login" element={<DriverLogin />} />
+          <Route
+            path="driver-register"
+            element={
+              <DriverRegister setIsDriverLoggedIn={setIsDriverLoggedIn} />
+            }
+          />
           <Route
             path="passenger-register"
             element={
