@@ -14,15 +14,12 @@ const MainNavbar = (props: MainNavbarProps) => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    apiLogout(cookies.get("ptoken"), "passenger")
-      .then((res) => {
-        props.setIsPassengerLoggedIn(false);
-        navigate("/");
-      })
-      .catch((err) => {
-        alert(err.response.data);
-      });
+    apiLogout(cookies.get("ptoken"), "passenger").catch((err) => {
+      alert(err.response.data);
+    });
+    props.setIsPassengerLoggedIn(false);
     cookies.remove("ptoken");
+    navigate("/");
   };
 
   return (
@@ -36,6 +33,9 @@ const MainNavbar = (props: MainNavbarProps) => {
         </NavLink>
         <NavLink className="nav-link" to="/passenger/history">
           History
+        </NavLink>
+        <NavLink className="nav-link" to="/passenger/profile">
+          Profile
         </NavLink>
       </div>
       <button className="sign-in-btn passenger-btn" onClick={handleSubmit}>
