@@ -43,4 +43,16 @@ const apiVerifyToken = async (token: string, accType: string) => {
   return res;
 };
 
-export { apiLogin, apiLogout, apiVerifyToken };
+const apiRegister = async (accType: string, accDetails: any) => {
+  const res = await axios({
+    method: "post",
+    url:
+      (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
+      "/register",
+    headers: { "Content-Type": "application/json" },
+    data: JSON.stringify(accDetails),
+  });
+  return res;
+};
+
+export { apiLogin, apiLogout, apiVerifyToken, apiRegister };
