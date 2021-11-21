@@ -20,12 +20,14 @@ type loginCredentials struct {
 	Phone string `json:"phone"`
 }
 
-type passengerDetails struct {
+type driverDetails struct {
 	UID string `json"uid"`
 	FirstName string `json"firstName"`
 	LastName string `json"lastName"`
 	Phone string `json:"phone"`
 	Email string `json:"email"`
+	IDNumber string `json:"id"`
+	LicenseNumber string `json:"licenseNo`
 }
 
 type tokenString struct {
@@ -115,10 +117,10 @@ func printMap(mapObj map[string]string) {
 	fmt.Println("=================================================")
 }
 
-func DB_getPassengerByEmail(email string) passengerDetails {
-	var p passengerDetails
+func DB_getDriverByEmail(email string) driverDetails {
+	var p driverDetails
 
-	queryString := fmt.Sprintf("Select * FROM passenger_db.passengers WHERE Email='%s'", email)
+	queryString := fmt.Sprintf("Select * FROM driver_db.drivers WHERE Email='%s'", email)
 	results, err := db.Query(queryString) 
 
     if err != nil {
@@ -126,7 +128,7 @@ func DB_getPassengerByEmail(email string) passengerDetails {
     }
 
     for results.Next() {
-        err = results.Scan(&p.UID, &p.FirstName, &p.LastName, &p.Phone, &p.Email)
+        err = results.Scan(&p.UID, &p.FirstName, &p.LastName, &p.Phone, &p.Email, &p.IDNumber, &p.LicenseNumber)
         if err != nil {
             panic(err.Error()) 
         }      
@@ -134,10 +136,10 @@ func DB_getPassengerByEmail(email string) passengerDetails {
 	return p
 }
 
-func DB_createPassenger(acc passengerDetails) bool {
+func DB_createDriver(acc driverDetails) bool {
 	acc.UID = generateUID()
-	queryString := fmt.Sprintf("INSERT INTO Passengers (UID, FirstName, LastName, Phone, Email) VALUES ('%s', '%s', '%s', '%s', '%s');",
-								acc.UID, acc.FirstName, acc.LastName, acc.Phone, acc.Email)
+	queryString := fmt.Sprintf("INSERT INTO Drivers (UID, FirstName, LastName, Phone, Email, ID, LicenseNo) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s');",
+								acc.UID, acc.FirstName, acc.LastName, acc.Phone, acc.Email, acc.IDNumber, acc.LicenseNumber)
 	_, err := db.Query(queryString) 
 
     if err != nil {
@@ -147,17 +149,18 @@ func DB_createPassenger(acc passengerDetails) bool {
 	return false
 }
 
-func DB_editPassengerByUID(uid string, acc passengerDetails) bool {
+func DB_editDriverByUID(uid string, acc driverDetails) bool {
 	relevantFields := ""
 	if acc.Email != "" { relevantFields += " Email='" + acc.Email + "'," }
 	if acc.Phone != "" { relevantFields += " Phone='" + acc.Phone + "'," }
 	if acc.FirstName != "" { relevantFields += " FirstName='" + acc.FirstName + "'," }
 	if acc.LastName != "" { relevantFields += " LastName='" + acc.LastName + "'," }
+	if acc.LicenseNumber != "" { relevantFields += " LicenseNo='" + acc.LicenseNumber + "'," }
 	// remove trailing "," if present
 	if last := len(relevantFields) - 1; last >= 0 && relevantFields[last] == ',' {
         relevantFields = relevantFields[:last]
     }
-	queryString := fmt.Sprintf("UPDATE Passengers SET" + relevantFields + " WHERE UID='%s'", uid)
+	queryString := fmt.Sprintf("UPDATE Drivers SET" + relevantFields + " WHERE UID='%s'", uid)
 
 	_, err := db.Query(queryString)   
 	if err != nil {
@@ -178,8 +181,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 				json.Unmarshal(reqBody, &credentials) 
 				fmt.Println("RECEIVED: ", credentials)
 				
-				// get passenger's record from database
-				p := DB_getPassengerByEmail(credentials.Email)
+				// get Driver's record from database
+				p := DB_getDriverByEmail(credentials.Email)
 
 				// check if there is an entry with the submitted email
 				if p.Email != "" {
@@ -214,7 +217,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func logout(w http.ResponseWriter, r *http.Request) {
+func logout(w http.ResponseWriter, r *http.Request) { // TODO
 	if r.Method == "POST" {
 		fmt.Println("Received LOGOUT POST request")
 		if r.Header.Get("Content-type")=="application/json" {
@@ -295,19 +298,20 @@ func register(w http.ResponseWriter, r *http.Request) {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
 				// convert JSON to object
-				var acc passengerDetails
+				var acc driverDetails
 				json.Unmarshal(reqBody, &acc) 
 				// validate registration details
-				if (acc.Email == "" || acc.Phone == "" || acc.FirstName == "" || acc.LastName == "") {
+				if (acc.Email == "" || acc.Phone == "" || acc.FirstName == "" || acc.LastName == "" || acc.IDNumber == "" || acc.LicenseNumber == "") {
+					fmt.Println("License: ", acc.LicenseNumber);
 					w.WriteHeader(http.StatusBadRequest)
                 	w.Write([]byte("400 - Account details incomplete"))
 				} else {
 					// check if email is already registered
-					if dbEntry := DB_getPassengerByEmail(acc.Email); dbEntry.Email == "" {
-						// update database with new passenger entry
-						if err := DB_createPassenger(acc); err {
+					if dbEntry := DB_getDriverByEmail(acc.Email); dbEntry.Email == "" {
+						// update database with new driver entry
+						if err := DB_createDriver(acc); err {
 							w.WriteHeader(http.StatusInternalServerError)
-							w.Write([]byte("500 - Error creating passenger entry, please try again"))
+							w.Write([]byte("500 - Error creating driver entry, please try again"))
 						} else {
 							// successfully created passenger entry
 							w.WriteHeader(http.StatusOK)
@@ -331,7 +335,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func edit(w http.ResponseWriter, r *http.Request) {
+func edit(w http.ResponseWriter, r *http.Request) { // TODO: make sure IDNumber not editable
 	token := getTokenFromHeader(r)
 	existingUID := tokenMap[token]
 	if existingUID == "" {
@@ -346,22 +350,28 @@ func edit(w http.ResponseWriter, r *http.Request) {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
 				// convert JSON to object
-				var acc passengerDetails
+				var acc driverDetails
 				json.Unmarshal(reqBody, &acc) 
 				// undo operation if all fields are empty
-				if acc.Email == "" && acc.Phone == "" && acc.FirstName == "" && acc.LastName == "" {
+				if acc.Email == "" && acc.Phone == "" && acc.FirstName == "" && acc.LastName == "" && acc.LicenseNumber == "" {
 					w.WriteHeader(http.StatusBadRequest)
 					w.Write([]byte("400 - There are no valid fields provided"))
 					return
 				}
+				// undo operation if ID is being edited
+				if acc.IDNumber != "" {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("400 - ID cannot be edited"))
+					return
+				}
 				// check if email is already taken
-				if dbEntry := DB_getPassengerByEmail(acc.Email); dbEntry.Email == "" {
+				if dbEntry := DB_getDriverByEmail(acc.Email); dbEntry.Email == "" {
 					// update database entry by UID
-					if err := DB_editPassengerByUID(existingUID, acc); err {
+					if err := DB_editDriverByUID(existingUID, acc); err {
 						w.WriteHeader(http.StatusInternalServerError)
 						w.Write([]byte("500 - Error updating account details, please try again"))
 					} else {
-						// successfully updated passenger details
+						// successfully updated driver details
 						w.WriteHeader(http.StatusOK)
 					}
 				} else {
@@ -390,15 +400,15 @@ func main() {
 
 	// setup API routers
 	router := mux.NewRouter()
-    router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
-	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
+    router.HandleFunc("/api/v1/driver/login", login).Methods("POST")
+	router.HandleFunc("/api/v1/driver/logout", logout).Methods("POST")
+	router.HandleFunc("/api/v1/driver/verify", verifyToken).Methods("POST")
+	router.HandleFunc("/api/v1/driver/edit", edit).Methods("PUT")
+	router.HandleFunc("/api/v1/driver/register", register).Methods("POST")
 
 	// establish database connection
 	var err error
-	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/passenger_db")
+	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/driver_db")
 	if err != nil {
 		panic(err.Error())
 	} 
@@ -407,6 +417,6 @@ func main() {
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
 	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT"})
-	fmt.Println("Serving passenger account API at port 5001")
-    log.Fatal(http.ListenAndServe(":5001", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
+	fmt.Println("Serving driver account API at port 5002")
+    log.Fatal(http.ListenAndServe(":5002", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }

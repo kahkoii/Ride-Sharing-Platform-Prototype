@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const passengerBaseURL = "http://localhost:5001/api/v1/passenger";
-const driverBaseURL = "http://localhost:5001/api/v1/driver";
+const driverBaseURL = "http://localhost:5002/api/v1/driver";
 
 const apiLogin = async (email: string, phone: string, accType: string) => {
   const res = await axios({
