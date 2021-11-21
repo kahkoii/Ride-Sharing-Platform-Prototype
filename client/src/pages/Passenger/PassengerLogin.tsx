@@ -1,6 +1,6 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { ReactComponent as Logo } from "../../assets/ShrideLogo.svg";
-import { postLogin } from "../../endpoints/Passenger";
+import { postLogin } from "../../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
 import "../main.css";
 
@@ -14,9 +14,10 @@ const PassengerLogin = (props: loginProps) => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    postLogin(event.target.email.value, event.target.phone.value)
+    postLogin(event.target.email.value, event.target.phone.value, "passenger")
       .then((res) => {
-        cookies.set("token", res.data);
+        cookies.set("ptoken", res.data);
+        cookies.remove("dtoken");
         props.setIsPassengerLoggedIn(true);
         navigate("/passenger");
       })
