@@ -415,7 +415,7 @@ func main() {
 	defer db.Close()
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
-	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000"})
+	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:5000"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT"})
 	fmt.Println("Serving driver account API at port 5002")
     log.Fatal(http.ListenAndServe(":5002", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
