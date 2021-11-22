@@ -10,5 +10,14 @@ CREATE TABLE Passengers (
     Email VARCHAR(50)
 );
 
+CREATE TABLE History (
+	id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    PassengerUID VARCHAR(16),
+    DriverUID VARCHAR(16),
+    StartTime DATETIME,
+    EndTime DATETIME,
+    FOREIGN KEY (PassengerUID) REFERENCES Passengers(UID)
+);
+
 INSERT INTO Passengers (UID, FirstName, LastName, Phone, Email)
 VALUES ("ift3houkwp4DSkbp", "Jake", "Lee", "91827162", "jakelee@gmail.com");
