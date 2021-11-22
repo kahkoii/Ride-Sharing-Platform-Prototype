@@ -21,13 +21,13 @@ type loginCredentials struct {
 }
 
 type driverDetails struct {
-	UID string `json"uid"`
-	FirstName string `json"firstName"`
-	LastName string `json"lastName"`
+	UID string `json:"uid"`
+	FirstName string `json:"firstName"`
+	LastName string `json:"lastName"`
 	Phone string `json:"phone"`
 	Email string `json:"email"`
 	IDNumber string `json:"id"`
-	LicenseNumber string `json:"licenseNo`
+	LicenseNumber string `json:"licenseNo"`
 }
 
 type tokenString struct {
@@ -217,7 +217,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func logout(w http.ResponseWriter, r *http.Request) { // TODO
+func logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		fmt.Println("Received LOGOUT POST request")
 		if r.Header.Get("Content-type")=="application/json" {
@@ -335,12 +335,12 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func edit(w http.ResponseWriter, r *http.Request) { // TODO: make sure IDNumber not editable
+func edit(w http.ResponseWriter, r *http.Request) {
 	token := getTokenFromHeader(r)
 	existingUID := tokenMap[token]
 	if existingUID == "" {
         w.WriteHeader(http.StatusNotFound)
-        w.Write([]byte("401 - Invalid key"))
+        w.Write([]byte("401 - Invalid token"))
         return
     }
 
@@ -392,6 +392,24 @@ func edit(w http.ResponseWriter, r *http.Request) { // TODO: make sure IDNumber 
 	}
 }
 
+func retrieveUID(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		token := getTokenFromHeader(r)
+		existingUID := tokenMap[token]
+		if existingUID == "" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("401 - Invalid token"))
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(existingUID)
+		}
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+	}
+}
+
 func main() {
 	// initialize variables
 	tokenMap = make(map[string]string)
@@ -403,8 +421,9 @@ func main() {
     router.HandleFunc("/api/v1/driver/login", login).Methods("POST")
 	router.HandleFunc("/api/v1/driver/logout", logout).Methods("POST")
 	router.HandleFunc("/api/v1/driver/verify", verifyToken).Methods("POST")
-	router.HandleFunc("/api/v1/driver/edit", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/driver/register", register).Methods("POST")
+	router.HandleFunc("/api/v1/driver/edit", edit).Methods("PUT")
+	router.HandleFunc("/api/v1/driver/retrieve-uid", retrieveUID).Methods("GET")
 
 	// establish database connection
 	var err error

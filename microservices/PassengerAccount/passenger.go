@@ -21,15 +21,22 @@ type loginCredentials struct {
 }
 
 type passengerDetails struct {
-	UID string `json"uid"`
-	FirstName string `json"firstName"`
-	LastName string `json"lastName"`
+	UID string `json:"uid"`
+	FirstName string `json:"firstName"`
+	LastName string `json:"lastName"`
 	Phone string `json:"phone"`
 	Email string `json:"email"`
 }
 
 type tokenString struct {
 	Token string `json:"token"`
+}
+
+type completedTrip struct {
+	DriverUID string 	`json:"driverUID"`
+	PassengerUID string `json:"passengerUID"`
+	StartTime string	`json:"startTime"`
+	EndTime string		`json:"endTime"`
 }
 
 var tokenMap map[string]string
@@ -165,6 +172,22 @@ func DB_editPassengerByUID(uid string, acc passengerDetails) bool {
 		return true
 	}
 	return false		
+}
+
+func DB_saveHistory(hist []completedTrip) bool {
+	fmt.Println("Retrieved history data, saving to database...")
+	for _, ct := range hist {
+		queryString := fmt.Sprintf("INSERT INTO History (DriverUID, PassengerUID, StartTime, EndTime) VALUES ('%s', '%s', '%s', '%s');",
+								ct.DriverUID, ct.PassengerUID, ct.StartTime, ct.EndTime)
+		fmt.Println("query:", queryString)
+		_, err := db.Query(queryString)
+		if err != nil {
+			fmt.Println(err.Error())
+			return true
+		}
+	}
+	fmt.Println("History database table has been successfully updated")
+	return false
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -336,7 +359,7 @@ func edit(w http.ResponseWriter, r *http.Request) {
 	existingUID := tokenMap[token]
 	if existingUID == "" {
         w.WriteHeader(http.StatusNotFound)
-        w.Write([]byte("401 - Invalid key"))
+        w.Write([]byte("401 - Invalid token"))
         return
     }
 
@@ -382,6 +405,52 @@ func edit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func retrieveUID(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+
+		token := getTokenFromHeader(r)
+		existingUID := tokenMap[token]
+		if existingUID == "" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("401 - Invalid token"))
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(existingUID)
+		}
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+	}
+}
+
+func saveHistory(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+		return
+	}
+	if r.Header.Get("Content-type") != "application/json" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 - Header content type not application/json"))
+		return
+	}
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	// convert JSON to object
+	var ct []completedTrip
+	json.Unmarshal(reqBody, &ct)
+	if DB_saveHistory(ct) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("500 - Error saving history to database, please try again"))
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func main() {
 	// initialize variables
 	tokenMap = make(map[string]string)
@@ -393,8 +462,10 @@ func main() {
     router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
+	router.HandleFunc("/api/v1/passenger/retrieve-uid", retrieveUID).Methods("GET")
+	router.HandleFunc("/api/v1/passenger/save-history", saveHistory).Methods("POST")
 
 	// establish database connection
 	var err error
