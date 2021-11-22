@@ -63,8 +63,8 @@ body {
 
 .nav-link,
 .nav-link:link,
-.nav-link:visited,
-.nav-link {
+.nav-link:visited {
+  color: rgb(81, 49, 194);
   font-size: 34px;
   font-family: "Bebas Neue", cursive;
   text-decoration: none;
@@ -266,4 +266,55 @@ body {
 .request-trip-inner .request-btn {
   margin: 30px 30% 0px 30%;
   font-size: 20px;
+}
+
+.driver-dashboard {
+  background-color: #fff;
+  color: #000;
+  border-radius: 30px;
+  width: 600px;
+  margin: 60px auto;
+  padding: 40px 50px;
+  min-height: 360px;
+  text-align: center;
+}
+
+.driver-action-section {
+  margin-top: 72px;
+  font-family: "Bebas Neue", cursive;
+  font-size: 26px;
+}
+
+.driver-action-section button {
+  margin: 0;
+  margin-top: 30px;
+}
+
+.driver-loading-section {
+  padding-top: 70px;
+}
+
+.driver-loading-section p {
+  margin-bottom: 20px;
+}
+
+/* Loading symbol */
+.loader {
+  z-index: 99;
+  margin: 0 auto;
+  border: 12px solid #f3f3f3; /* Light grey */
+  border-top: 12px solid #30c8ea; /* Blue */
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

@@ -31,6 +31,9 @@ const MainNavbar = (props: MainNavbarProps) => {
         <NavLink className="nav-link" to="/driver">
           Dashboard
         </NavLink>
+        <NavLink className="nav-link" to="/driver/profile">
+          Profile
+        </NavLink>
       </div>
       <button className="sign-in-btn driver-btn" onClick={handleSubmit}>
         Sign Out
