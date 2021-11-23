@@ -16,21 +16,25 @@ import (
 
 type tripDetails struct {
 	PassengerUID string
+	LocationPostal string
+	DestinationPostal string
 	StartTime string
 }
 
 type completedTrip struct {
-	DriverUID string 	`json:"driverUID"`
-	PassengerUID string `json:"passengerUID"`
-	StartTime string	`json:"startTime"`
-	EndTime string		`json:"endTime"`
+	DriverUID string 			`json:"driverUID"`
+	PassengerUID string 		`json:"passengerUID"`
+	LocationPostal string 		`json:"locationPostal"`
+	DestinationPostal string	`json:"destinationPostal"`
+	StartTime string			`json:"startTime"`
+	EndTime string 				`json:"endTime"`
 }
 
 var passenger_api 	string
 var driver_api 		string
 var activeTrips 	map[string]tripDetails
 // FIFO Queue Implementation
-var passengerQueue 	[]string
+var passengerQueue 	[]tripDetails
 var driverQueue 	[]string
 var historyQueue 	[]completedTrip
 
@@ -76,7 +80,9 @@ func attemptMatch() {
 	fmt.Println("Attempting to match passengers with drivers")
 	if len(passengerQueue) > 0 && len(driverQueue) > 0 {
 		var trip tripDetails
-		trip.PassengerUID = passengerQueue[0]
+		trip.PassengerUID = passengerQueue[0].PassengerUID
+		trip.LocationPostal = passengerQueue[0].LocationPostal
+		trip.DestinationPostal = passengerQueue[0].DestinationPostal
 		trip.StartTime = time.Now().Format("2006-01-02 15:04:05")
 		activeTrips[driverQueue[0]] = trip
 		// remove earliest entry from queue
@@ -118,7 +124,16 @@ func printHistory() {
 	fmt.Println("=================================================")
 }
 
-func checkSliceForDuplicates(slice []string, uid string) bool {
+func checkPassengerQueueForDuplicates(slice []tripDetails, uid string) bool {
+	for _, item := range slice {
+        if item.PassengerUID == uid {
+            return true
+        }
+    }
+	return false
+}
+
+func checkDriverQueueForDuplicates(slice []string, uid string) bool {
 	for _, item := range slice {
         if item == uid {
             return true
@@ -138,15 +153,34 @@ func enqueuePassenger(w http.ResponseWriter, r *http.Request) {
 		}
 		uid := getUIDByToken(token, "passenger")
 		if uid != "" {
-			if checkSliceForDuplicates(passengerQueue, uid) {
+			if !checkPassengerQueueForDuplicates(passengerQueue, uid) {
+				if r.Header.Get("Content-type") == "application/json" {
+					reqBody, err := ioutil.ReadAll(r.Body)
+					if err == nil {
+						var newTrip tripDetails
+						json.Unmarshal(reqBody, &newTrip)
+						if (newTrip.LocationPostal == "" || newTrip.DestinationPostal == ""){
+							w.WriteHeader(http.StatusBadRequest)
+							w.Write([]byte("400 - Location and destination postal codes are required"))
+							return
+						}
+						newTrip.PassengerUID = uid
+						fmt.Println("Added passenger ", uid, " to queue")
+						passengerQueue = append(passengerQueue, newTrip)
+						attemptMatch()
+						w.WriteHeader(http.StatusOK)
+					} else {
+						w.WriteHeader(http.StatusBadRequest)
+						w.Write([]byte(err.Error()))
+					}
+				} else {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("400 - Header content type not application/json"))
+				}
+			} else {
 				w.WriteHeader(http.StatusBadRequest)
         		w.Write([]byte("400 - Passenger is already in queue"))
-				return
 			}
-			fmt.Println("Added passenger ", uid, " to queue")
-			passengerQueue = append(passengerQueue, uid)
-			attemptMatch()
-			w.WriteHeader(http.StatusOK)
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
         	w.Write([]byte("400 - Invalid passenger UID"))
@@ -168,7 +202,7 @@ func enqueueDriver(w http.ResponseWriter, r *http.Request) {
 		}
 		uid := getUIDByToken(token, "driver")
 		if uid != "" {
-			if checkSliceForDuplicates(driverQueue, uid) {
+			if checkDriverQueueForDuplicates(driverQueue, uid) {
 				w.WriteHeader(http.StatusBadRequest)
         		w.Write([]byte("400 - Driver is already in queue"))
 				return
@@ -204,6 +238,8 @@ func endTrip(w http.ResponseWriter, r *http.Request) {
 			trip := activeTrips[uid]
 			c.DriverUID = uid
 			c.PassengerUID = trip.PassengerUID
+			c.LocationPostal = trip.LocationPostal
+			c.DestinationPostal = trip.DestinationPostal
 			c.StartTime = trip.StartTime
 			c.EndTime = time.Now().Format("2006-01-02 15:04:05")
 			historyQueue = append(historyQueue, c)
@@ -226,7 +262,7 @@ func main() {
 	passenger_api = "http://localhost:5001/api/v1/passenger"
 	driver_api = "http://localhost:5002/api/v1/driver/"
 	activeTrips = make(map[string]tripDetails)
-	passengerQueue = make([]string, 0)
+	passengerQueue = make([]tripDetails, 0)
 	driverQueue = make([]string, 0)
 	historyQueue = make([]completedTrip, 0)
 

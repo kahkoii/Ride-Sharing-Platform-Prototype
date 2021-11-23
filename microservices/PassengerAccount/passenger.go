@@ -33,10 +33,12 @@ type tokenString struct {
 }
 
 type completedTrip struct {
-	DriverUID string 	`json:"driverUID"`
-	PassengerUID string `json:"passengerUID"`
-	StartTime string	`json:"startTime"`
-	EndTime string		`json:"endTime"`
+	DriverUID string 			`json:"driverUID"`
+	PassengerUID string 		`json:"passengerUID"`
+	LocationPostal string 		`json:"locationPostal"`
+	DestinationPostal string	`json:"destinationPostal"`
+	StartTime string			`json:"startTime"`
+	EndTime string 				`json:"endTime"`
 }
 
 var tokenMap map[string]string
@@ -177,9 +179,8 @@ func DB_editPassengerByUID(uid string, acc passengerDetails) bool {
 func DB_saveHistory(hist []completedTrip) bool {
 	fmt.Println("Retrieved history data, saving to database...")
 	for _, ct := range hist {
-		queryString := fmt.Sprintf("INSERT INTO History (DriverUID, PassengerUID, StartTime, EndTime) VALUES ('%s', '%s', '%s', '%s');",
-								ct.DriverUID, ct.PassengerUID, ct.StartTime, ct.EndTime)
-		fmt.Println("query:", queryString)
+		queryString := fmt.Sprintf("INSERT INTO History (DriverUID, PassengerUID, LocationPostal, DestinationPostal, StartTime, EndTime) VALUES ('%s', '%s', '%s', '%s', '%s', '%s');",
+									ct.DriverUID, ct.PassengerUID, ct.LocationPostal, ct.DestinationPostal, ct.StartTime, ct.EndTime)
 		_, err := db.Query(queryString)
 		if err != nil {
 			fmt.Println(err.Error())

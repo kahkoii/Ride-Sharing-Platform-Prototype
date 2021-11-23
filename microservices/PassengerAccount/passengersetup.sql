@@ -14,6 +14,8 @@ CREATE TABLE History (
 	id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     PassengerUID VARCHAR(16),
     DriverUID VARCHAR(16),
+    LocationPostal VARCHAR(6),
+    DestinationPostal VARCHAR(6),
     StartTime DATETIME,
     EndTime DATETIME,
     FOREIGN KEY (PassengerUID) REFERENCES Passengers(UID)
