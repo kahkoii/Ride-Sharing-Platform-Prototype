@@ -1,4 +1,7 @@
+import { useState, useEffect } from "react";
 import MainNavbar from "./PassengerNavbar";
+import { passengerFindTrip } from "../../endpoints/Matcher";
+import Cookies from "universal-cookie/es6";
 import "../main.css";
 
 interface passengerMainProps {
@@ -6,10 +9,30 @@ interface passengerMainProps {
 }
 
 const PassengerMain = (props: passengerMainProps) => {
+  const cookies = new Cookies();
+  const [isFindingTrip, setIsFindingTrip] = useState<Boolean>(false);
+
+  useEffect(() => {
+    if (isFindingTrip) {
+      alert("Your request for a driver has been submitted successfully!");
+    }
+  }, [isFindingTrip]);
+
   const findTrip = (event: any) => {
     event.preventDefault();
-    console.log("Current location: " + event.target.locationPostal.value);
-    console.log("Want to go: " + event.target.destinationPostal.value);
+    const pt = cookies.get("ptoken");
+    passengerFindTrip(
+      pt,
+      event.target.locationPostal.value,
+      event.target.destinationPostal.value
+    )
+      .then((res) => {
+        setIsFindingTrip(true);
+      })
+      .catch((err) => {
+        alert(err.response.data);
+      });
+    setIsFindingTrip(true);
   };
 
   return (

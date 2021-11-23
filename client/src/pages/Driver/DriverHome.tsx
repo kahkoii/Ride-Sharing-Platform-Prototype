@@ -1,5 +1,7 @@
 import { useState } from "react";
 import MainNavbar from "./DriverNavbar";
+import { driverStartSearch } from "../../endpoints/Matcher";
+import Cookies from "universal-cookie/es6";
 import "../main.css";
 
 interface driverMainProps {
@@ -7,13 +9,19 @@ interface driverMainProps {
 }
 
 const DriverMain = (props: driverMainProps) => {
+  const cookies = new Cookies();
   const [isSearching, setIsSearching] = useState<Boolean>(false);
 
-  const startTrip = (event: any) => {
+  const startSearch = (event: any) => {
     event.preventDefault();
-    setIsSearching(true);
-    setTimeout(() => setIsSearching(false), 1000);
-    console.log("STARTING TRIP");
+    const dt = cookies.get("dtoken");
+    driverStartSearch(dt)
+      .then(() => {
+        setIsSearching(true);
+      })
+      .catch((err) => {
+        alert(err.response.data);
+      });
   };
 
   return (
@@ -32,7 +40,7 @@ const DriverMain = (props: driverMainProps) => {
                 </p>
                 <button
                   className="public-register-btn driver-btn"
-                  onClick={startTrip}
+                  onClick={startSearch}
                 >
                   Search
                 </button>
