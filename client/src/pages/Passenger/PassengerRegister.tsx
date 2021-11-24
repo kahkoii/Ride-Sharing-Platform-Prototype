@@ -22,7 +22,7 @@ const PassengerRegister = (props: registerProps) => {
     };
     apiRegister("passenger", accJSON)
       .then((res) => {
-        apiLogin(accJSON.email, accJSON.phone, "passenger").then((res) => {
+        apiLogin("passenger", accJSON.email, accJSON.phone).then((res) => {
           cookies.set("ptoken", res.data);
           cookies.remove("dtoken");
           props.setIsPassengerLoggedIn(true);

@@ -14,7 +14,7 @@ const DriverLogin = (props: loginProps) => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    apiLogin(event.target.email.value, event.target.phone.value, "driver")
+    apiLogin("driver", event.target.email.value, event.target.phone.value)
       .then((res) => {
         cookies.set("dtoken", res.data);
         cookies.remove("ptoken");

@@ -14,7 +14,7 @@ const PassengerLogin = (props: loginProps) => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    apiLogin(event.target.email.value, event.target.phone.value, "passenger")
+    apiLogin("passenger", event.target.email.value, event.target.phone.value)
       .then((res) => {
         cookies.set("ptoken", res.data);
         cookies.remove("dtoken");

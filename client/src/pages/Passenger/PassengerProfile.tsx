@@ -14,6 +14,7 @@ const PassengerProfile = (props: passengerProfileProps) => {
   const editProfile = (event: any) => {
     // TODO
     event.preventDefault();
+    alert("Saving changes");
     // passengerFindTrip(
     //   pt,
     //   event.target.locationPostal.value,
@@ -30,13 +31,13 @@ const PassengerProfile = (props: passengerProfileProps) => {
 
   const deleteProfile = (event: any) => {
     event.preventDefault();
-    apiDelete(pt, "passenger")
+    apiDelete("passenger", pt)
       .then(() => {
         alert("Account deletion successful");
         cookies.remove("pt");
       })
-      .catch(() => {
-        alert("Account cannot be deleted");
+      .catch((err) => {
+        alert(err.response.data);
       });
   };
 
@@ -47,40 +48,33 @@ const PassengerProfile = (props: passengerProfileProps) => {
       <div>
         <div className="image-overlay passenger-bg"></div>
         <div className="main">
-          <div className="request-trip-section">
-            <div className="request-trip-inner">
-              <h1>Edit Profile</h1>
-              <form className="login-form" onSubmit={editProfile}>
+          <div className="registration-box">
+            <h1 className="registration-title">Edit Profile</h1>
+            <form className="registration-form" onSubmit={editProfile}>
+              <div className="registration-form-row">
+                <h5 className="label">Email</h5>
+                <input type="email" name="email" />
+                <h5 className="label">Phone Number</h5>
+                <input type="text" name="phone" pattern="[0-9]{8}" />
+              </div>
+              <div className="registration-form-row">
+                <h5 className="label">First Name</h5>
+                <input type="text" name="firstName" />
+                <h5 className="label">Last Name</h5>
+                <input type="text" name="lastName" />
+              </div>
+              <div className="edit-form-actions">
+                <button type="submit" className="sign-in-btn passenger-btn">
+                  Save Changes
+                </button>
                 <button
-                  className="request-btn public-register-btn passenger-btn"
+                  className="sign-in-btn delete-acc"
                   onClick={deleteProfile}
                 >
-                  Delete
+                  Delete Account
                 </button>
-                <h5 className="label">Location Postal Code</h5>
-                <input
-                  type="text"
-                  name="locationPostal"
-                  pattern="[0-9]{6}"
-                  placeholder="599489"
-                  required
-                />
-                <h5 className="label">Destination Postal Code</h5>
-                <input
-                  type="text"
-                  name="destinationPostal"
-                  pattern="[0-9]{6}"
-                  placeholder="599489"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="request-btn public-register-btn passenger-btn"
-                >
-                  Submit
-                </button>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>

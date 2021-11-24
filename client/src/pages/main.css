@@ -298,6 +298,15 @@ body {
   margin-bottom: 20px;
 }
 
+.edit-form-actions {
+  margin-top: 40px;
+  padding-left: 120px;
+}
+
+.delete-acc {
+  background-color: rgb(241, 75, 53);
+}
+
 /* Loading symbol */
 .loader {
   z-index: 99;

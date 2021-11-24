@@ -3,7 +3,7 @@ import axios from "axios";
 const passengerBaseURL = "http://localhost:5001/api/v1/passenger";
 const driverBaseURL = "http://localhost:5002/api/v1/driver";
 
-const apiLogin = async (email: string, phone: string, accType: string) => {
+const apiLogin = async (accType: string, email: string, phone: string) => {
   const res = await axios({
     method: "post",
     url:
@@ -55,7 +55,7 @@ const apiRegister = async (accType: string, accDetails: any) => {
   return res;
 };
 
-const apiDelete = async (token: string, accType: string) => {
+const apiDelete = async (accType: string, token: string) => {
   const res = await axios({
     method: "delete",
     url:
