@@ -345,7 +345,7 @@ func edit(w http.ResponseWriter, r *http.Request) {
     }
 
 	if r.Method == "PUT" {
-		fmt.Println("Received EDIT PUT request for INSERT_ID_HERE")
+		fmt.Println("Received EDIT PUT request")
 		if r.Header.Get("Content-type")=="application/json" {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
@@ -392,6 +392,13 @@ func edit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func deleteAccount(w http.ResponseWriter, r *http.Request) {
+	// Deletion of account not allowed according to requirements
+	fmt.Println("Received DELETE ACCOUNT request")
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte("400 - Deletion of account not allowed"))
+}
+
 func retrieveUID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		token := getTokenFromHeader(r)
@@ -423,6 +430,7 @@ func main() {
 	router.HandleFunc("/api/v1/driver/verify", verifyToken).Methods("POST")
 	router.HandleFunc("/api/v1/driver/register", register).Methods("POST")
 	router.HandleFunc("/api/v1/driver/edit", edit).Methods("PUT")
+	router.HandleFunc("/api/v1/driver/delete", deleteAccount).Methods("DELETE")
 	router.HandleFunc("/api/v1/driver/retrieve-uid", retrieveUID).Methods("GET")
 
 	// establish database connection
@@ -435,7 +443,7 @@ func main() {
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
 	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:5000"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
 	fmt.Println("Serving driver account API at port 5002")
     log.Fatal(http.ListenAndServe(":5002", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }

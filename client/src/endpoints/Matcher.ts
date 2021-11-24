@@ -2,7 +2,7 @@ import axios from "axios";
 
 const matcherBaseURL = "http://localhost:5003/api/v1/matcher";
 
-const passengerFindTrip = async (
+const apiPassengerFindTrip = async (
   token: string,
   locationPostal: string,
   destinationPostal: string
@@ -19,7 +19,7 @@ const passengerFindTrip = async (
   return res;
 };
 
-const driverStartSearch = async (token: string) => {
+const apiDriverStartSearch = async (token: string) => {
   const res = await axios({
     method: "post",
     url: matcherBaseURL + "/queue-driver?token=" + token,
@@ -27,4 +27,4 @@ const driverStartSearch = async (token: string) => {
   return res;
 };
 
-export { passengerFindTrip, driverStartSearch };
+export { apiPassengerFindTrip, apiDriverStartSearch };

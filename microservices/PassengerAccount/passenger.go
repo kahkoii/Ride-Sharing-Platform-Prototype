@@ -365,7 +365,7 @@ func edit(w http.ResponseWriter, r *http.Request) {
     }
 
 	if r.Method == "PUT" {
-		fmt.Println("Received EDIT PUT request for INSERT_ID_HERE")
+		fmt.Println("Received EDIT PUT request")
 		if r.Header.Get("Content-type")=="application/json" {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
@@ -406,9 +406,15 @@ func edit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func deleteAccount(w http.ResponseWriter, r *http.Request) {
+	// Deletion of account not allowed according to requirements
+	fmt.Println("Received DELETE ACCOUNT request")
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte("400 - Deletion of account not allowed"))
+}
+
 func retrieveUID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
 		token := getTokenFromHeader(r)
 		existingUID := tokenMap[token]
 		if existingUID == "" {
@@ -465,6 +471,7 @@ func main() {
 	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
+	router.HandleFunc("/api/v1/passenger/delete", deleteAccount).Methods("DELETE")
 	router.HandleFunc("/api/v1/passenger/retrieve-uid", retrieveUID).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/save-history", saveHistory).Methods("POST")
 
@@ -478,7 +485,7 @@ func main() {
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
 	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:5000"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
 	fmt.Println("Serving passenger account API at port 5001")
     log.Fatal(http.ListenAndServe(":5001", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }
