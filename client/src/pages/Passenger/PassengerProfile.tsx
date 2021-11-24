@@ -1,41 +1,47 @@
-import { useState, useEffect } from "react";
 import MainNavbar from "./PassengerNavbar";
-import { apiPassengerFindTrip } from "../../endpoints/Matcher";
+import { apiDelete } from "../../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
 import "../main.css";
 
-interface passengerMainProps {
+interface passengerProfileProps {
   setIsPassengerLoggedIn: React.Dispatch<React.SetStateAction<Boolean>>;
 }
 
-const PassengerMain = (props: passengerMainProps) => {
+const PassengerProfile = (props: passengerProfileProps) => {
   const cookies = new Cookies();
-  const [isFindingTrip, setIsFindingTrip] = useState<Boolean>(false);
+  const pt = cookies.get("ptoken");
 
-  useEffect(() => {
-    if (isFindingTrip) {
-      alert("Your request for a driver has been submitted successfully!");
-    }
-  }, [isFindingTrip]);
-
-  const findTrip = (event: any) => {
+  const editProfile = (event: any) => {
+    // TODO
     event.preventDefault();
-    const pt = cookies.get("ptoken");
-    apiPassengerFindTrip(
-      pt,
-      event.target.locationPostal.value,
-      event.target.destinationPostal.value
-    )
-      .then((res) => {
-        setIsFindingTrip(true);
+    // passengerFindTrip(
+    //   pt,
+    //   event.target.locationPostal.value,
+    //   event.target.destinationPostal.value
+    // )
+    //   .then((res) => {
+    //     setIsFindingTrip(true);
+    //   })
+    //   .catch((err) => {
+    //     alert(err.response.data);
+    //   });
+    // setIsFindingTrip(true);
+  };
+
+  const deleteProfile = (event: any) => {
+    event.preventDefault();
+    apiDelete(pt, "passenger")
+      .then(() => {
+        alert("Account deletion successful");
+        cookies.remove("pt");
       })
-      .catch((err) => {
-        alert(err.response.data);
+      .catch(() => {
+        alert("Account cannot be deleted");
       });
-    setIsFindingTrip(true);
   };
 
   return (
+    // TODO
     <>
       <MainNavbar setIsPassengerLoggedIn={props.setIsPassengerLoggedIn} />
       <div>
@@ -43,8 +49,14 @@ const PassengerMain = (props: passengerMainProps) => {
         <div className="main">
           <div className="request-trip-section">
             <div className="request-trip-inner">
-              <h1>Request Trip</h1>
-              <form className="login-form" onSubmit={findTrip}>
+              <h1>Edit Profile</h1>
+              <form className="login-form" onSubmit={editProfile}>
+                <button
+                  className="request-btn public-register-btn passenger-btn"
+                  onClick={deleteProfile}
+                >
+                  Delete
+                </button>
                 <h5 className="label">Location Postal Code</h5>
                 <input
                   type="text"
@@ -65,7 +77,7 @@ const PassengerMain = (props: passengerMainProps) => {
                   type="submit"
                   className="request-btn public-register-btn passenger-btn"
                 >
-                  Find Trip
+                  Submit
                 </button>
               </form>
             </div>
@@ -76,4 +88,4 @@ const PassengerMain = (props: passengerMainProps) => {
   );
 };
 
-export default PassengerMain;
+export default PassengerProfile;

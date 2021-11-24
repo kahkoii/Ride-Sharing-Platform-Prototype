@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MainNavbar from "./DriverNavbar";
-import { driverStartSearch } from "../../endpoints/Matcher";
+import { apiDriverStartSearch } from "../../endpoints/Matcher";
 import Cookies from "universal-cookie/es6";
 import "../main.css";
 
@@ -15,7 +15,7 @@ const DriverMain = (props: driverMainProps) => {
   const startSearch = (event: any) => {
     event.preventDefault();
     const dt = cookies.get("dtoken");
-    driverStartSearch(dt)
+    apiDriverStartSearch(dt)
       .then(() => {
         setIsSearching(true);
       })
