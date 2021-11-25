@@ -182,7 +182,7 @@ func DB_editDriverByUID(uid string, acc driverDetails) bool {
 func DB_getDetailsByUID(uid string) driverDetailsNoID {
 	var p driverDetailsNoID
 
-	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email FROM drivers WHERE UID='%s'", uid);
+	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email, ID, LicenseNo FROM drivers WHERE UID='%s'", uid);
 	results, err := db.Query(queryString) 
 
     if err != nil {
@@ -190,7 +190,7 @@ func DB_getDetailsByUID(uid string) driverDetailsNoID {
     }
 
     for results.Next() {
-        err = results.Scan(&p.FirstName, &p.LastName, &p.Phone, &p.Email)
+        err = results.Scan(&p.FirstName, &p.LastName, &p.Phone, &p.Email, &p.IDNumber, &p.LicenseNumber)
         if err != nil {
             panic(err.Error()) 
         }      

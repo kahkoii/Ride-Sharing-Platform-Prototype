@@ -1,37 +1,45 @@
-import MainNavbar from "./PassengerNavbar";
+import MainNavbar from "./DriverNavbar";
 import { useState, useEffect } from "react";
 import { apiGetDetails, apiDelete } from "../../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
 import "../main.css";
 
-interface passengerProfileProps {
-  setIsPassengerLoggedIn: React.Dispatch<React.SetStateAction<Boolean>>;
+interface driverProfileProps {
+  setIsDriverLoggedIn: React.Dispatch<React.SetStateAction<Boolean>>;
 }
 
-interface passengerAccount {
+interface driverAccount {
   email: string;
   phone: string;
   firstName: string;
   lastName: string;
+  id: string;
+  licenseNo: string;
 }
 
-const PassengerProfile = (props: passengerProfileProps) => {
+const DriverProfile = (props: driverProfileProps) => {
   const cookies = new Cookies();
-  const pt = cookies.get("ptoken");
-  const [account, setAccount] = useState<passengerAccount>({
+  const dt = cookies.get("dtoken");
+  const [account, setAccount] = useState<driverAccount>({
     email: "",
     phone: "",
     firstName: "",
     lastName: "",
+    id: "",
+    licenseNo: "",
   });
 
   useEffect(() => {
-    apiGetDetails("passenger", pt).then((res) => {
-      const acc: passengerAccount = {
+    apiGetDetails("driver", dt).then((res) => {
+      alert("hi");
+      console.log(res);
+      const acc: driverAccount = {
         email: res.data.email,
         phone: res.data.phone,
         firstName: res.data.firstName,
         lastName: res.data.lastName,
+        id: res.data.id,
+        licenseNo: res.data.licenseNo,
       };
       setAccount(acc);
     });
@@ -42,26 +50,14 @@ const PassengerProfile = (props: passengerProfileProps) => {
     // TODO
     event.preventDefault();
     alert("Saving changes");
-    // passengerFindTrip(
-    //   pt,
-    //   event.target.locationPostal.value,
-    //   event.target.destinationPostal.value
-    // )
-    //   .then((res) => {
-    //     setIsFindingTrip(true);
-    //   })
-    //   .catch((err) => {
-    //     alert(err.response.data);
-    //   });
-    // setIsFindingTrip(true);
   };
 
   const deleteProfile = (event: any) => {
     event.preventDefault();
-    apiDelete("passenger", pt)
+    apiDelete("driver", dt)
       .then(() => {
         alert("Account deletion successful");
-        cookies.remove("pt");
+        cookies.remove("dt");
       })
       .catch((err) => {
         alert(err.response.data);
@@ -71,9 +67,9 @@ const PassengerProfile = (props: passengerProfileProps) => {
   return (
     // TODO
     <>
-      <MainNavbar setIsPassengerLoggedIn={props.setIsPassengerLoggedIn} />
+      <MainNavbar setIsDriverLoggedIn={props.setIsDriverLoggedIn} />
       <div>
-        <div className="image-overlay passenger-bg"></div>
+        <div className="image-overlay driver-bg"></div>
         <div className="main">
           <div className="registration-box">
             <h1 className="registration-title">Edit Profile</h1>
@@ -103,6 +99,21 @@ const PassengerProfile = (props: passengerProfileProps) => {
                   placeholder={account.lastName}
                 />
               </div>
+              <div className="registration-form-row">
+                <h5 className="label">Car License</h5>
+                <input
+                  type="text"
+                  name="licenseNumber"
+                  placeholder={account.licenseNo}
+                />
+                <h5 className="label">ID</h5>
+                <input
+                  type="text"
+                  name="id"
+                  placeholder={account.id}
+                  readOnly
+                />
+              </div>
               <div className="edit-form-actions">
                 <button type="submit" className="sign-in-btn passenger-btn">
                   Save Changes
@@ -122,4 +133,4 @@ const PassengerProfile = (props: passengerProfileProps) => {
   );
 };
 
-export default PassengerProfile;
+export default DriverProfile;

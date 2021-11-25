@@ -11,6 +11,7 @@ import DriverPublic from "./Driver/DriverPublic";
 import DriverLogin from "./Driver/DriverLogin";
 import DriverRegister from "./Driver/DriverRegister";
 import DriverHome from "./Driver/DriverHome";
+import DriverProfile from "./Driver/DriverProfile";
 import PassengerPublic from "./Passenger/PassengerPublic";
 import PassengerRegister from "./Passenger/PassengerRegister";
 import PassengerLogin from "./Passenger/PassengerLogin";
@@ -85,6 +86,12 @@ const App: React.FC = () => {
           <Route
             path="/driver"
             element={<DriverHome setIsDriverLoggedIn={setIsDriverLoggedIn} />}
+          />
+          <Route
+            path="/driver/profile"
+            element={
+              <DriverProfile setIsDriverLoggedIn={setIsDriverLoggedIn} />
+            }
           />
           <Route path="*" element={<MissingPage rootPath="/driver" />} />
         </Routes>
