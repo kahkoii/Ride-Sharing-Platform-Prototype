@@ -30,6 +30,15 @@ type driverDetails struct {
 	LicenseNumber string `json:"licenseNo"`
 }
 
+type driverDetailsNoID struct {
+	FirstName string `json:"firstName"`
+	LastName string `json:"lastName"`
+	Phone string `json:"phone"`
+	Email string `json:"email"`
+	IDNumber string `json:"id"`
+	LicenseNumber string `json:"licenseNo"`
+}
+
 type tokenString struct {
 	Token string `json:"token"`
 }
@@ -120,7 +129,7 @@ func printMap(mapObj map[string]string) {
 func DB_getDriverByEmail(email string) driverDetails {
 	var p driverDetails
 
-	queryString := fmt.Sprintf("Select * FROM driver_db.drivers WHERE Email='%s'", email)
+	queryString := fmt.Sprintf("Select * FROM drivers WHERE Email='%s'", email)
 	results, err := db.Query(queryString) 
 
     if err != nil {
@@ -168,6 +177,25 @@ func DB_editDriverByUID(uid string, acc driverDetails) bool {
 		return true
 	}
 	return false		
+}
+
+func DB_getDetailsByUID(uid string) driverDetailsNoID {
+	var p driverDetailsNoID
+
+	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email FROM drivers WHERE UID='%s'", uid);
+	results, err := db.Query(queryString) 
+
+    if err != nil {
+        panic(err.Error())
+    }
+
+    for results.Next() {
+        err = results.Scan(&p.FirstName, &p.LastName, &p.Phone, &p.Email)
+        if err != nil {
+            panic(err.Error()) 
+        }      
+    }
+	return p
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -392,6 +420,26 @@ func edit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func details(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Println("Received DETAILS GET request")
+		token := getTokenFromHeader(r)
+		existingUID := tokenMap[token]
+		if existingUID == "" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("401 - Invalid token"))
+		} else {
+			accDetails := DB_getDetailsByUID(existingUID)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(accDetails)
+		}
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+	}
+}
+
 func deleteAccount(w http.ResponseWriter, r *http.Request) {
 	// Deletion of account not allowed according to requirements
 	fmt.Println("Received DELETE ACCOUNT request")
@@ -430,6 +478,7 @@ func main() {
 	router.HandleFunc("/api/v1/driver/verify", verifyToken).Methods("POST")
 	router.HandleFunc("/api/v1/driver/register", register).Methods("POST")
 	router.HandleFunc("/api/v1/driver/edit", edit).Methods("PUT")
+	router.HandleFunc("/api/v1/driver/details", details).Methods("GET")
 	router.HandleFunc("/api/v1/driver/delete", deleteAccount).Methods("DELETE")
 	router.HandleFunc("/api/v1/driver/retrieve-uid", retrieveUID).Methods("GET")
 

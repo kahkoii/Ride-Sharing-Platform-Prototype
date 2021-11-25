@@ -28,6 +28,13 @@ type passengerDetails struct {
 	Email string `json:"email"`
 }
 
+type passengerDetailsNoID struct {
+	FirstName string `json:"firstName"`
+	LastName string `json:"lastName"`
+	Phone string `json:"phone"`
+	Email string `json:"email"`
+}
+
 type tokenString struct {
 	Token string `json:"token"`
 }
@@ -174,6 +181,25 @@ func DB_editPassengerByUID(uid string, acc passengerDetails) bool {
 		return true
 	}
 	return false		
+}
+
+func DB_getDetailsByUID(uid string) passengerDetailsNoID {
+	var p passengerDetailsNoID
+
+	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email FROM passengers WHERE UID='%s'", uid);
+	results, err := db.Query(queryString) 
+
+    if err != nil {
+        panic(err.Error())
+    }
+
+    for results.Next() {
+        err = results.Scan(&p.FirstName, &p.LastName, &p.Phone, &p.Email)
+        if err != nil {
+            panic(err.Error()) 
+        }      
+    }
+	return p
 }
 
 func DB_saveHistory(hist []completedTrip) bool {
@@ -406,6 +432,26 @@ func edit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func details(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Println("Received DETAILS GET request")
+		token := getTokenFromHeader(r)
+		existingUID := tokenMap[token]
+		if existingUID == "" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("401 - Invalid token"))
+		} else {
+			accDetails := DB_getDetailsByUID(existingUID)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(accDetails)
+		}
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+	}
+}
+
 func deleteAccount(w http.ResponseWriter, r *http.Request) {
 	// Deletion of account not allowed according to requirements
 	fmt.Println("Received DELETE ACCOUNT request")
@@ -471,6 +517,7 @@ func main() {
 	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
+	router.HandleFunc("/api/v1/passenger/details", details).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/delete", deleteAccount).Methods("DELETE")
 	router.HandleFunc("/api/v1/passenger/retrieve-uid", retrieveUID).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/save-history", saveHistory).Methods("POST")

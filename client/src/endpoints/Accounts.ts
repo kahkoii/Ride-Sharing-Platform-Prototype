@@ -55,6 +55,18 @@ const apiRegister = async (accType: string, accDetails: any) => {
   return res;
 };
 
+const apiGetDetails = async (accType: string, token: string) => {
+  const res = await axios({
+    method: "get",
+    url:
+      (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
+      "/details?token=" +
+      token,
+    headers: { "Content-Type": "application/json" },
+  });
+  return res;
+};
+
 const apiDelete = async (accType: string, token: string) => {
   const res = await axios({
     method: "delete",
@@ -66,4 +78,11 @@ const apiDelete = async (accType: string, token: string) => {
   return res;
 };
 
-export { apiLogin, apiLogout, apiVerifyToken, apiRegister, apiDelete };
+export {
+  apiLogin,
+  apiLogout,
+  apiVerifyToken,
+  apiRegister,
+  apiGetDetails,
+  apiDelete,
+};
