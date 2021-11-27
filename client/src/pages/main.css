@@ -4,7 +4,7 @@
   background-image: url("../assets/RiderHome.jpeg");
   filter: blur(1px);
   -webkit-filter: blur(1px);
-  background-position-y: -130px;
+  background-position-y: -110px;
 }
 
 #driver-public {
