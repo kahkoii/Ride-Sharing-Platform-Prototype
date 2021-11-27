@@ -1,6 +1,6 @@
 import MainNavbar from "./DriverNavbar";
 import { useState, useEffect } from "react";
-import { apiGetDetails, apiDelete } from "../../endpoints/Accounts";
+import { apiGetDetails, apiEdit, apiDelete } from "../../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
 import "../main.css";
 
@@ -31,7 +31,6 @@ const DriverProfile = (props: driverProfileProps) => {
 
   useEffect(() => {
     apiGetDetails("driver", dt).then((res) => {
-      alert("hi");
       console.log(res);
       const acc: driverAccount = {
         email: res.data.email,
@@ -47,9 +46,47 @@ const DriverProfile = (props: driverProfileProps) => {
   }, []);
 
   const editProfile = (event: any) => {
-    // TODO
     event.preventDefault();
-    alert("Saving changes");
+    const acc: driverAccount = {
+      email: event.target.email.value,
+      phone: event.target.phone.value,
+      firstName: event.target.firstName.value,
+      lastName: event.target.lastName.value,
+      licenseNo: event.target.licenseNumber.value,
+      id: event.target.id.value,
+    };
+    apiEdit("driver", dt, acc)
+      .then((res) => {
+        const newAcc: driverAccount = {
+          email:
+            event.target.email.value === ""
+              ? account.email
+              : event.target.email.value,
+          phone:
+            event.target.phone.value === ""
+              ? account.phone
+              : event.target.phone.value,
+          firstName:
+            event.target.firstName.value === ""
+              ? account.firstName
+              : event.target.firstName.value,
+          lastName:
+            event.target.lastName.value === ""
+              ? account.lastName
+              : event.target.lastName.value,
+          licenseNo:
+            event.target.licenseNumber.value === ""
+              ? account.licenseNo
+              : event.target.licenseNumber.value,
+          id: account.id,
+        };
+        alert("Profile changes have been saved successfully.");
+        event.target.reset();
+        setAccount(newAcc);
+      })
+      .catch((err) => {
+        alert(err.response.data);
+      });
   };
 
   const deleteProfile = (event: any) => {

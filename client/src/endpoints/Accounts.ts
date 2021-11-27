@@ -67,6 +67,19 @@ const apiGetDetails = async (accType: string, token: string) => {
   return res;
 };
 
+const apiEdit = async (accType: string, token: string, accDetails: any) => {
+  const res = await axios({
+    method: "put",
+    url:
+      (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
+      "/edit?token=" +
+      token,
+    headers: { "Content-Type": "application/json" },
+    data: JSON.stringify(accDetails),
+  });
+  return res;
+};
+
 const apiDelete = async (accType: string, token: string) => {
   const res = await axios({
     method: "delete",
@@ -84,5 +97,6 @@ export {
   apiVerifyToken,
   apiRegister,
   apiGetDetails,
+  apiEdit,
   apiDelete,
 };

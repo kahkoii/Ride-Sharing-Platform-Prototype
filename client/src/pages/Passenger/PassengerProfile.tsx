@@ -1,6 +1,6 @@
 import MainNavbar from "./PassengerNavbar";
 import { useState, useEffect } from "react";
-import { apiGetDetails, apiDelete } from "../../endpoints/Accounts";
+import { apiGetDetails, apiEdit, apiDelete } from "../../endpoints/Accounts";
 import Cookies from "universal-cookie/es6";
 import "../main.css";
 
@@ -39,21 +39,40 @@ const PassengerProfile = (props: passengerProfileProps) => {
   }, []);
 
   const editProfile = (event: any) => {
-    // TODO
     event.preventDefault();
-    alert("Saving changes");
-    // passengerFindTrip(
-    //   pt,
-    //   event.target.locationPostal.value,
-    //   event.target.destinationPostal.value
-    // )
-    //   .then((res) => {
-    //     setIsFindingTrip(true);
-    //   })
-    //   .catch((err) => {
-    //     alert(err.response.data);
-    //   });
-    // setIsFindingTrip(true);
+    const acc: passengerAccount = {
+      email: event.target.email.value,
+      phone: event.target.phone.value,
+      firstName: event.target.firstName.value,
+      lastName: event.target.lastName.value,
+    };
+    apiEdit("passenger", pt, acc)
+      .then((res) => {
+        const newAcc: passengerAccount = {
+          email:
+            event.target.email.value === ""
+              ? account.email
+              : event.target.email.value,
+          phone:
+            event.target.phone.value === ""
+              ? account.phone
+              : event.target.phone.value,
+          firstName:
+            event.target.firstName.value === ""
+              ? account.firstName
+              : event.target.firstName.value,
+          lastName:
+            event.target.lastName.value === ""
+              ? account.lastName
+              : event.target.lastName.value,
+        };
+        alert("Profile changes have been saved successfully.");
+        event.target.reset();
+        setAccount(newAcc);
+      })
+      .catch((err) => {
+        alert(err.response.data);
+      });
   };
 
   const deleteProfile = (event: any) => {
