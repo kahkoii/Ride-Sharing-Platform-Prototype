@@ -17,6 +17,7 @@ import PassengerRegister from "./Passenger/PassengerRegister";
 import PassengerLogin from "./Passenger/PassengerLogin";
 import PassengerHome from "./Passenger/PassengerHome";
 import PassengerProfile from "./Passenger/PassengerProfile";
+import PassengerHistory from "./Passenger/PassengerHistory";
 import MissingPage from "./MissingPage";
 
 const App: React.FC = () => {
@@ -74,6 +75,14 @@ const App: React.FC = () => {
             path="/passenger/profile"
             element={
               <PassengerProfile
+                setIsPassengerLoggedIn={setIsPassengerLoggedIn}
+              />
+            }
+          />
+          <Route
+            path="/passenger/history"
+            element={
+              <PassengerHistory
                 setIsPassengerLoggedIn={setIsPassengerLoggedIn}
               />
             }

@@ -91,6 +91,14 @@ const apiDelete = async (accType: string, token: string) => {
   return res;
 };
 
+const apiGetPassengerHistory = async (token: string) => {
+  const res = await axios({
+    method: "get",
+    url: passengerBaseURL + "/retrieve-history?token=" + token,
+  });
+  return res;
+};
+
 export {
   apiLogin,
   apiLogout,
@@ -99,4 +107,5 @@ export {
   apiGetDetails,
   apiEdit,
   apiDelete,
+  apiGetPassengerHistory,
 };
