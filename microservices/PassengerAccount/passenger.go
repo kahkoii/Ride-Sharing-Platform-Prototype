@@ -48,6 +48,14 @@ type completedTrip struct {
 	EndTime string 				`json:"endTime"`
 }
 
+type completedTripNoID struct {
+	ReferenceID string			`json:"refID"`
+	LocationPostal string 		`json:"locationPostal"`
+	DestinationPostal string	`json:"destinationPostal"`
+	StartTime string			`json:"startTime"`
+	EndTime string 				`json:"endTime"`
+}
+
 var tokenMap map[string]string
 var onlineUsers map[string]string
 var db *sql.DB
@@ -215,6 +223,28 @@ func DB_saveHistory(hist []completedTrip) bool {
 	}
 	fmt.Println("History database table has been successfully updated")
 	return false
+}
+
+func DB_retrieveHistory(uid string) []completedTripNoID {
+	fmt.Println("Retrieving history information from database...")
+	trips := make([]completedTripNoID, 0)
+	queryString := fmt.Sprintf("SELECT id, LocationPostal, DestinationPostal, StartTime, EndTime FROM History WHERE PassengerUID='%s'", uid)
+	results, err := db.Query(queryString)
+	
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+		var trip completedTripNoID
+        err = results.Scan(&trip.ReferenceID, &trip.LocationPostal, &trip.DestinationPostal, &trip.StartTime, &trip.EndTime)
+        if err != nil {
+            panic(err.Error()) 
+        } else {
+			trips = append(trips, trip)
+		}
+    }
+	return trips
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -504,6 +534,26 @@ func saveHistory(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func retrieveHistory(w http.ResponseWriter, r *http.Request) {
+	token := getTokenFromHeader(r)
+	existingUID := tokenMap[token]
+	if existingUID == "" {
+        w.WriteHeader(http.StatusNotFound)
+        w.Write([]byte("401 - Invalid token"))
+        return
+    }
+	if r.Method != "GET" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+		return
+	}
+	fmt.Println("Received RETRIEVE HISTORY GET request")
+	trips := DB_retrieveHistory(existingUID)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(trips)
+}
+
 func main() {
 	// initialize variables
 	tokenMap = make(map[string]string)
@@ -521,6 +571,7 @@ func main() {
 	router.HandleFunc("/api/v1/passenger/delete", deleteAccount).Methods("DELETE")
 	router.HandleFunc("/api/v1/passenger/retrieve-uid", retrieveUID).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/save-history", saveHistory).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/retrieve-history", retrieveHistory).Methods("GET")
 
 	// establish database connection
 	var err error
