@@ -52,22 +52,24 @@ const PassengerHistory = (props: passengerHistoryProps) => {
           <h1 className="registration-title">Trip History</h1>
           {history.length !== 0 && (
             <table className="history-box">
-              <tr>
-                <th>Ref Code</th>
-                <th>Start Location</th>
-                <th>Destination</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-              </tr>
-              {history.map((hist) => (
-                <tr className="history-row">
-                  <td>{hist.refID}</td>
-                  <td>{hist.locationPostal}</td>
-                  <td>{hist.destinationPostal}</td>
-                  <td>{hist.startTime}</td>
-                  <td>{hist.endTime}</td>
+              <tbody>
+                <tr>
+                  <th>Ref Code</th>
+                  <th>Start Location</th>
+                  <th>Destination</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
                 </tr>
-              ))}
+                {history.map((hist) => (
+                  <tr className="history-row">
+                    <td>{hist.refID}</td>
+                    <td>{hist.locationPostal}</td>
+                    <td>{hist.destinationPostal}</td>
+                    <td>{hist.startTime}</td>
+                    <td>{hist.endTime}</td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           )}
           {history.length === 0 && (
