@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MainNavbar from "./DriverNavbar";
 import { apiDriverStartSearch } from "../../endpoints/Matcher";
 import Cookies from "universal-cookie/es6";
@@ -10,14 +10,41 @@ interface driverMainProps {
 
 const DriverMain = (props: driverMainProps) => {
   const cookies = new Cookies();
-  const [isSearching, setIsSearching] = useState<Boolean>(false);
+  const dt = cookies.get("dtoken");
+  // statuses are "none", "searching", and "found"
+  const [searchStatus, setSearchStatus] = useState<String>("none");
+
+  useEffect(() => {
+    if (searchStatus === "searching") {
+      alert("You will now be searching for a passenger");
+    }
+  }, [searchStatus]);
+
+  const establishWS = async () => {
+    const ws = new WebSocket("ws://localhost:5003/api/v1/matcher/ws");
+    ws.onopen = () => {
+      try {
+        ws.send("D" + dt);
+      } catch (error) {
+        alert(error);
+      }
+    };
+    ws.onmessage = (event) => {
+      const msg = event.data;
+      if (msg === "1") {
+        setSearchStatus("found");
+        alert("A passenger has been found");
+        ws.close();
+      }
+    };
+  };
 
   const startSearch = (event: any) => {
     event.preventDefault();
-    const dt = cookies.get("dtoken");
     apiDriverStartSearch(dt)
       .then(() => {
-        setIsSearching(true);
+        establishWS();
+        setSearchStatus("searching");
       })
       .catch((err) => {
         alert(err.response.data);
@@ -32,7 +59,7 @@ const DriverMain = (props: driverMainProps) => {
         <div className="main">
           <div className="driver-dashboard">
             <h2>Driver Dashboard</h2>
-            {!isSearching ? (
+            {searchStatus === "none" && (
               <div className="driver-action-section">
                 <p>
                   Ready to drive?
@@ -45,7 +72,8 @@ const DriverMain = (props: driverMainProps) => {
                   Search
                 </button>
               </div>
-            ) : (
+            )}
+            {searchStatus === "searching" && (
               <div className="driver-loading-section">
                 <p>Waiting for passengers</p>
                 <div className="loader" />

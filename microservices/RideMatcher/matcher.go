@@ -12,9 +12,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
+// TODO: make a tripID map that is returned to drivers and passengers on-queue
+// as a ticket number, that is used in the websocket
 type tripDetails struct {
+	TripID string
 	PassengerUID string
 	LocationPostal string
 	DestinationPostal string
@@ -33,10 +37,18 @@ type completedTrip struct {
 var passenger_api 	string
 var driver_api 		string
 var activeTrips 	map[string]tripDetails
+// Map tripID to driver UID
+var tripMap			map[string]string
 // FIFO Queue Implementation
 var passengerQueue 	[]tripDetails
 var driverQueue 	[]string
 var historyQueue 	[]completedTrip
+// Websocket handler
+var wsConnections map[string]chan string
+var upgrader = websocket.Upgrader{
+	ReadBufferSize: 1024,
+	WriteBufferSize: 1024,
+}
 
 func getValueFromHeader(r *http.Request, valueName string) string {
     v := r.URL.Query()
@@ -67,15 +79,13 @@ func getUIDByToken(token string, accType string) string {
 	return ""
 }
 
-func updatePassengerStatus() { // TODO
-	// TODO: Update passenger to inform ride has been found
+func channelSend(uid string, msg string) {
+	c := wsConnections[uid]
+	c <- msg
+	close(c)
 }
 
-func updateDriverStatus() { // TODO
-	// TODO: Update driver to inform passenger has been found
-}
-
-func attemptMatch() {
+func attemptMatch() { // TODO: send out tripID as message in websocket
 	// check if there are people ready to ride/drive
 	fmt.Println("Attempting to match passengers with drivers")
 	if len(passengerQueue) > 0 && len(driverQueue) > 0 {
@@ -85,12 +95,12 @@ func attemptMatch() {
 		trip.DestinationPostal = passengerQueue[0].DestinationPostal
 		trip.StartTime = time.Now().Format("2006-01-02 15:04:05")
 		activeTrips[driverQueue[0]] = trip
+		// notify passenger and driver through WS channel
+		go channelSend(passengerQueue[0].PassengerUID, "1")
+		go channelSend(driverQueue[0], "1")
 		// remove earliest entry from queue
 		passengerQueue = passengerQueue[1:]
 		driverQueue = driverQueue[1:]
-		// notify various APIs
-		updatePassengerStatus()
-		updateDriverStatus()
 		fmt.Println("A passenger was matched with a driver")
 		return
 	}
@@ -167,6 +177,9 @@ func enqueuePassenger(w http.ResponseWriter, r *http.Request) {
 						newTrip.PassengerUID = uid
 						fmt.Println("Added passenger ", uid, " to queue")
 						passengerQueue = append(passengerQueue, newTrip)
+						// create a new ws channel
+						c := make(chan string)
+						wsConnections[uid] = c
 						attemptMatch()
 						w.WriteHeader(http.StatusOK)
 					} else {
@@ -209,6 +222,9 @@ func enqueueDriver(w http.ResponseWriter, r *http.Request) {
 			}
 			driverQueue = append(driverQueue, uid)
 			fmt.Println("Added driver ", uid, " to queue")
+			// create a new ws channel
+			c := make(chan string)
+			wsConnections[uid] = c
 			attemptMatch()
 			w.WriteHeader(http.StatusOK)
 		} else {
@@ -257,20 +273,63 @@ func endTrip(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func wsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received WS connection request")
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	go wsReadWrite(ws)
+}
+
+func wsReadWrite(conn *websocket.Conn) {
+	log.Println("Client successfully connected to WebSocket")
+	for {
+		// Read incoming message
+		messageType, msg, err := conn.ReadMessage()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println("Awaiting message from channel")
+		token := string(msg)
+		var accType string
+		if token[0:1] == "P" {
+			accType = "passenger"
+		} else {
+			accType = "driver"
+		}
+		uid := getUIDByToken(token[1:], accType)
+		channel := wsConnections[uid]
+		reply := <- channel
+		delete(wsConnections, token)
+		// Send message
+		if err := conn.WriteMessage(messageType, []byte(reply)); err != nil {
+			log.Println(err)
+			return
+		}
+		defer conn.Close()
+	}
+}
+
 func main() {
 	// initialize variables
 	passenger_api = "http://localhost:5001/api/v1/passenger"
 	driver_api = "http://localhost:5002/api/v1/driver/"
 	activeTrips = make(map[string]tripDetails)
+	tripMap = make(map[string]string)
 	passengerQueue = make([]tripDetails, 0)
 	driverQueue = make([]string, 0)
 	historyQueue = make([]completedTrip, 0)
+	wsConnections = make(map[string]chan string)
 
 	// setup API routers
 	router := mux.NewRouter()
     router.HandleFunc("/api/v1/matcher/queue-passenger", enqueuePassenger).Methods("POST")
 	router.HandleFunc("/api/v1/matcher/queue-driver", enqueueDriver).Methods("POST")
 	router.HandleFunc("/api/v1/matcher/end-trip", endTrip).Methods("POST")
+	router.HandleFunc("/api/v1/matcher/ws", wsHandler)
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
 	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:5000"})

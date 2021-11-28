@@ -10,29 +10,49 @@ interface passengerMainProps {
 
 const PassengerMain = (props: passengerMainProps) => {
   const cookies = new Cookies();
-  const [isFindingTrip, setIsFindingTrip] = useState<Boolean>(false);
+  const pt = cookies.get("ptoken");
+  // statuses consists of "none", "finding" and "found"
+  const [tripStatus, setTripStatus] = useState<String>("none");
 
   useEffect(() => {
-    if (isFindingTrip) {
+    if (tripStatus === "finding") {
       alert("Your request for a driver has been submitted successfully!");
     }
-  }, [isFindingTrip]);
+  }, [tripStatus]);
+
+  const establishWS = async () => {
+    const ws = new WebSocket("ws://localhost:5003/api/v1/matcher/ws");
+    ws.onopen = () => {
+      try {
+        ws.send("P" + pt);
+      } catch (error) {
+        alert(error);
+      }
+    };
+    ws.onmessage = (event) => {
+      const msg = event.data;
+      if (msg === "1") {
+        setTripStatus("found");
+        alert("A driver has been found");
+        ws.close();
+      }
+    };
+  };
 
   const findTrip = (event: any) => {
     event.preventDefault();
-    const pt = cookies.get("ptoken");
     apiPassengerFindTrip(
       pt,
       event.target.locationPostal.value,
       event.target.destinationPostal.value
     )
-      .then((res) => {
-        setIsFindingTrip(true);
+      .then(() => {
+        establishWS();
+        setTripStatus("finding");
       })
       .catch((err) => {
         alert(err.response.data);
       });
-    setIsFindingTrip(true);
   };
 
   return (
