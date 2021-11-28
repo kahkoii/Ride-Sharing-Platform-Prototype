@@ -49,18 +49,30 @@ const PassengerHistory = (props: passengerHistoryProps) => {
       <div>
         <div className="image-overlay passenger-bg"></div>
         <div className="main">
-          <div className="registration-box">
-            <h1 className="registration-title">Trip History</h1>
-            {history.map((hist) => (
-              <div style={{ border: "1px solid black" }}>
-                <p>Reference Code: {hist.refID}</p>
-                <p>Start Location: {hist.locationPostal}</p>
-                <p>Destination: {hist.destinationPostal}</p>
-                <p>Start Time: {hist.startTime}</p>
-                <p>End Time: {hist.endTime}</p>
-              </div>
-            ))}
-          </div>
+          <h1 className="registration-title">Trip History</h1>
+          {history.length !== 0 && (
+            <table className="history-box">
+              <tr>
+                <th>Ref Code</th>
+                <th>Start Location</th>
+                <th>Destination</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+              </tr>
+              {history.map((hist) => (
+                <tr className="history-row">
+                  <td>{hist.refID}</td>
+                  <td>{hist.locationPostal}</td>
+                  <td>{hist.destinationPostal}</td>
+                  <td>{hist.startTime}</td>
+                  <td>{hist.endTime}</td>
+                </tr>
+              ))}
+            </table>
+          )}
+          {history.length === 0 && (
+            <p className="no-history-msg">No rides have been made yet</p>
+          )}
         </div>
       </div>
     </>

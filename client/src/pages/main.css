@@ -307,6 +307,44 @@ body {
   background-color: rgb(241, 75, 53);
 }
 
+.history-box {
+  border-collapse: collapse;
+  margin: auto;
+  width: 70%;
+  background-color: #fff;
+  color: #000;
+}
+
+.history-box th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #4b72dd;
+  color: white;
+}
+
+.history-box td,
+.history-box th {
+  border: 1px solid #ddd;
+  padding: 10px;
+  height: 36px;
+}
+
+.history-box tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.no-history-msg {
+  background-color: #fff;
+  color: #000;
+  font-size: 26px;
+  width: 70%;
+  border-radius: 20px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
 /* Loading symbol */
 .loader {
   z-index: 99;
