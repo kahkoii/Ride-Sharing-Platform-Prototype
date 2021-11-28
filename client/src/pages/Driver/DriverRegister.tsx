@@ -20,7 +20,7 @@ const DriverRegister = (props: registerProps) => {
       firstName: event.target.firstName.value,
       lastName: event.target.lastName.value,
       id: event.target.id.value,
-      licenseNumber: event.target.licenseNumber.value,
+      licenseNo: event.target.licenseNo.value,
     };
     apiRegister("driver", accJSON)
       .then((res) => {
@@ -103,7 +103,7 @@ const DriverRegister = (props: registerProps) => {
                 <h5 className="label">Car License</h5>
                 <input
                   type="text"
-                  name="licenseNumber"
+                  name="licenseNo"
                   placeholder="SGX1234R"
                   required
                 />

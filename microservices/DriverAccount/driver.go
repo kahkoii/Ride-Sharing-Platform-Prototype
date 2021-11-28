@@ -330,7 +330,6 @@ func register(w http.ResponseWriter, r *http.Request) {
 				json.Unmarshal(reqBody, &acc) 
 				// validate registration details
 				if (acc.Email == "" || acc.Phone == "" || acc.FirstName == "" || acc.LastName == "" || acc.IDNumber == "" || acc.LicenseNumber == "") {
-					fmt.Println("License: ", acc.LicenseNumber);
 					w.WriteHeader(http.StatusBadRequest)
                 	w.Write([]byte("400 - Account details incomplete"))
 				} else {
