@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MainNavbar from "./DriverNavbar";
 import {
   apiDriverStartSearch,
@@ -17,14 +17,6 @@ const DriverMain = (props: driverMainProps) => {
   // statuses are "none", "searching", and "found"
   const [searchStatus, setSearchStatus] = useState<String>("none");
 
-  useEffect(() => {
-    if (searchStatus === "searching") {
-      alert("You will now be searching for a passenger");
-    } else if (searchStatus === "found") {
-      alert("A passenger has been found");
-    }
-  }, [searchStatus]);
-
   const establishWS = async () => {
     const ws = new WebSocket("ws://localhost:5003/api/v1/matcher/ws");
     ws.onopen = () => {
@@ -37,6 +29,7 @@ const DriverMain = (props: driverMainProps) => {
     ws.onmessage = (event) => {
       const msg = event.data;
       if (msg === "1") {
+        alert("A passenger has been found");
         setSearchStatus("found");
         ws.close();
       }
@@ -49,6 +42,7 @@ const DriverMain = (props: driverMainProps) => {
       .then(() => {
         establishWS();
         setSearchStatus("searching");
+        alert("You will now be searching for a passenger");
       })
       .catch((err) => {
         alert(err.response.data);

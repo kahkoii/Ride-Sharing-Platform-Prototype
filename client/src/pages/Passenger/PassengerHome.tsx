@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MainNavbar from "./PassengerNavbar";
 import { apiPassengerFindTrip } from "../../endpoints/Matcher";
 import Cookies from "universal-cookie/es6";
@@ -15,14 +15,6 @@ const PassengerMain = (props: passengerMainProps) => {
   // statuses consists of "none", "finding" and "found"
   const [tripStatus, setTripStatus] = useState<String>("none");
 
-  useEffect(() => {
-    if (tripStatus === "finding") {
-      alert("Your request for a driver has been submitted successfully!");
-    } else if (tripStatus === "found") {
-      alert("A driver has been found!");
-    }
-  }, [tripStatus]);
-
   const establishWS = async () => {
     const ws = new WebSocket("ws://localhost:5003/api/v1/matcher/ws");
     ws.onopen = () => {
@@ -35,6 +27,7 @@ const PassengerMain = (props: passengerMainProps) => {
     ws.onmessage = (event) => {
       const msg = event.data;
       if (msg === "1") {
+        alert("A driver has been found!");
         setTripStatus("found");
       } else if (msg === "2") {
         setTripStatus("none");
@@ -54,6 +47,7 @@ const PassengerMain = (props: passengerMainProps) => {
       .then(() => {
         establishWS();
         setTripStatus("finding");
+        alert("Your request for a driver has been submitted successfully!");
       })
       .catch((err) => {
         alert(err.response.data);
