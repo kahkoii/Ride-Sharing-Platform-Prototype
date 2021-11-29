@@ -15,8 +15,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// TODO: make a tripID map that is returned to drivers and passengers on-queue
-// as a ticket number, that is used in the websocket
 type tripDetails struct {
 	TripID string
 	PassengerUID string
@@ -43,7 +41,7 @@ var tripMap			map[string]string
 var passengerQueue 	[]tripDetails
 var driverQueue 	[]string
 var historyQueue 	[]completedTrip
-// Websocket handler
+// Map account UID to channel
 var wsConnections map[string]chan string
 var upgrader = websocket.Upgrader{
 	ReadBufferSize: 1024,
@@ -82,10 +80,9 @@ func getUIDByToken(token string, accType string) string {
 func channelSend(uid string, msg string) {
 	c := wsConnections[uid]
 	c <- msg
-	close(c)
 }
 
-func attemptMatch() { // TODO: send out tripID as message in websocket
+func attemptMatch() {
 	// check if there are people ready to ride/drive
 	fmt.Println("Attempting to match passengers with drivers")
 	if len(passengerQueue) > 0 && len(driverQueue) > 0 {
@@ -260,6 +257,8 @@ func endTrip(w http.ResponseWriter, r *http.Request) {
 			c.EndTime = time.Now().Format("2006-01-02 15:04:05")
 			historyQueue = append(historyQueue, c)
 			delete(activeTrips, uid)
+			// notify passenger of trip end through WS
+			wsConnections[trip.PassengerUID] <- "2"
 			// attempt to send history to passenger API
 			sendPassengerTripHistory()
 			w.WriteHeader(http.StatusOK)
@@ -303,12 +302,22 @@ func wsReadWrite(conn *websocket.Conn) {
 		uid := getUIDByToken(token[1:], accType)
 		channel := wsConnections[uid]
 		reply := <- channel
-		delete(wsConnections, token)
 		// Send message
 		if err := conn.WriteMessage(messageType, []byte(reply)); err != nil {
 			log.Println(err)
 			return
 		}
+		// Write end trip message for passenger
+		if (accType == "passenger") {
+			reply = <- channel
+			if err := conn.WriteMessage(messageType, []byte(reply)); err != nil {
+				log.Println(err)
+				return
+			}
+		}
+		// Close and remove channel
+		close(channel)
+		delete(wsConnections, uid)
 		defer conn.Close()
 	}
 }

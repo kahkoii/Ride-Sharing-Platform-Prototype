@@ -36,6 +36,9 @@ const PassengerMain = (props: passengerMainProps) => {
       const msg = event.data;
       if (msg === "1") {
         setTripStatus("found");
+      } else if (msg === "2") {
+        setTripStatus("none");
+        alert("You have arrived at your destination!");
         ws.close();
       }
     };
