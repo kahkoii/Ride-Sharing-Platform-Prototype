@@ -66,8 +66,8 @@ const PassengerMain = (props: passengerMainProps) => {
       <div>
         <div className="image-overlay passenger-bg"></div>
         <div className="main">
-          <div className="request-trip-section">
-            {tripStatus === "none" && (
+          {tripStatus === "none" && (
+            <div className="request-trip-section">
               <div className="request-trip-inner">
                 <h1>Request Trip</h1>
                 <form className="login-form" onSubmit={findTrip}>
@@ -95,20 +95,24 @@ const PassengerMain = (props: passengerMainProps) => {
                   </button>
                 </form>
               </div>
-            )}
-            {tripStatus === "finding" && (
+            </div>
+          )}
+          {tripStatus === "finding" && (
+            <div className="passenger-trip-box">
               <div className="passenger-loading-section">
                 <p>Finding a driver...</p>
                 <div className="loader" />
               </div>
-            )}
-            {tripStatus === "found" && (
+            </div>
+          )}
+          {tripStatus === "found" && (
+            <div className="passenger-trip-box">
               <div className="passenger-loading-section">
                 <p>Ride in progress</p>
                 <img src={car_gif} alt="" />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </>
