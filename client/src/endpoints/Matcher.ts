@@ -27,4 +27,12 @@ const apiDriverStartSearch = async (token: string) => {
   return res;
 };
 
-export { apiPassengerFindTrip, apiDriverStartSearch };
+const apiDriverEndTrip = async (token: string) => {
+  const res = await axios({
+    method: "post",
+    url: matcherBaseURL + "/end-trip?token=" + token,
+  });
+  return res;
+};
+
+export { apiPassengerFindTrip, apiDriverStartSearch, apiDriverEndTrip };

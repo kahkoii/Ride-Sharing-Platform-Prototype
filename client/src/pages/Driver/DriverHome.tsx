@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import MainNavbar from "./DriverNavbar";
-import { apiDriverStartSearch } from "../../endpoints/Matcher";
+import {
+  apiDriverStartSearch,
+  apiDriverEndTrip,
+} from "../../endpoints/Matcher";
 import Cookies from "universal-cookie/es6";
 import "../main.css";
 
@@ -17,6 +20,8 @@ const DriverMain = (props: driverMainProps) => {
   useEffect(() => {
     if (searchStatus === "searching") {
       alert("You will now be searching for a passenger");
+    } else if (searchStatus === "found") {
+      alert("A passenger has been found");
     }
   }, [searchStatus]);
 
@@ -33,7 +38,6 @@ const DriverMain = (props: driverMainProps) => {
       const msg = event.data;
       if (msg === "1") {
         setSearchStatus("found");
-        alert("A passenger has been found");
         ws.close();
       }
     };
@@ -45,6 +49,18 @@ const DriverMain = (props: driverMainProps) => {
       .then(() => {
         establishWS();
         setSearchStatus("searching");
+      })
+      .catch((err) => {
+        alert(err.response.data);
+      });
+  };
+
+  const endTrip = (event: any) => {
+    event.preventDefault();
+    apiDriverEndTrip(dt)
+      .then(() => {
+        setSearchStatus("none");
+        alert("Trip has ended, and a record has been saved");
       })
       .catch((err) => {
         alert(err.response.data);
@@ -77,6 +93,20 @@ const DriverMain = (props: driverMainProps) => {
               <div className="driver-loading-section">
                 <p>Waiting for passengers</p>
                 <div className="loader" />
+              </div>
+            )}
+            {searchStatus === "found" && (
+              <div className="driver-action-section">
+                <p>
+                  Trip in progress...
+                  <br /> Click below to end the trip
+                </p>
+                <button
+                  className="public-register-btn driver-btn"
+                  onClick={endTrip}
+                >
+                  End
+                </button>
               </div>
             )}
           </div>
