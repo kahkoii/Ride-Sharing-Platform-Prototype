@@ -247,15 +247,21 @@ body {
 }
 
 .request-trip-section {
-  background-color: #fff;
-  border-radius: 25px;
-  color: #000;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 30px;
   height: 100%;
-  width: 50%;
+  padding: 40px;
 }
 
 .request-trip-inner {
-  padding: 14% 18%;
+  background-color: #fff;
+  border-radius: 25px;
+  color: #000;
+  height: 66%;
+  width: 40%;
+  padding: 60px;
 }
 
 .request-trip-inner h1 {
@@ -266,6 +272,12 @@ body {
 .request-trip-inner .request-btn {
   margin: 30px 30% 0px 30%;
   font-size: 20px;
+}
+
+.passenger-map {
+  height: 506px;
+  width: 40%;
+  border-radius: 25px;
 }
 
 .passenger-trip-box {

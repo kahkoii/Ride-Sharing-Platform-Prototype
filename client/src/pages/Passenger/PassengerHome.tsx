@@ -2,6 +2,7 @@ import { useState } from "react";
 import MainNavbar from "./PassengerNavbar";
 import { apiPassengerFindTrip } from "../../endpoints/Matcher";
 import Cookies from "universal-cookie/es6";
+import map from "../../assets/map.png";
 import car_gif from "../../assets/moving_car.gif";
 import "../main.css";
 
@@ -89,6 +90,7 @@ const PassengerMain = (props: passengerMainProps) => {
                   </button>
                 </form>
               </div>
+              <img src={map} alt="sample map api" className="passenger-map" />
             </div>
           )}
           {tripStatus === "finding" && (
