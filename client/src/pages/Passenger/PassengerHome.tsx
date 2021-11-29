@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import MainNavbar from "./PassengerNavbar";
 import { apiPassengerFindTrip } from "../../endpoints/Matcher";
 import Cookies from "universal-cookie/es6";
+import car_gif from "../../assets/moving_car.gif";
 import "../main.css";
 
 interface passengerMainProps {
@@ -17,6 +18,8 @@ const PassengerMain = (props: passengerMainProps) => {
   useEffect(() => {
     if (tripStatus === "finding") {
       alert("Your request for a driver has been submitted successfully!");
+    } else if (tripStatus === "found") {
+      alert("A driver has been found!");
     }
   }, [tripStatus]);
 
@@ -33,7 +36,6 @@ const PassengerMain = (props: passengerMainProps) => {
       const msg = event.data;
       if (msg === "1") {
         setTripStatus("found");
-        alert("A driver has been found");
         ws.close();
       }
     };
@@ -62,33 +64,47 @@ const PassengerMain = (props: passengerMainProps) => {
         <div className="image-overlay passenger-bg"></div>
         <div className="main">
           <div className="request-trip-section">
-            <div className="request-trip-inner">
-              <h1>Request Trip</h1>
-              <form className="login-form" onSubmit={findTrip}>
-                <h5 className="label">Location Postal Code</h5>
-                <input
-                  type="text"
-                  name="locationPostal"
-                  pattern="[0-9]{6}"
-                  placeholder="599489"
-                  required
-                />
-                <h5 className="label">Destination Postal Code</h5>
-                <input
-                  type="text"
-                  name="destinationPostal"
-                  pattern="[0-9]{6}"
-                  placeholder="599489"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="request-btn public-register-btn passenger-btn"
-                >
-                  Find Trip
-                </button>
-              </form>
-            </div>
+            {tripStatus === "none" && (
+              <div className="request-trip-inner">
+                <h1>Request Trip</h1>
+                <form className="login-form" onSubmit={findTrip}>
+                  <h5 className="label">Location Postal Code</h5>
+                  <input
+                    type="text"
+                    name="locationPostal"
+                    pattern="[0-9]{6}"
+                    placeholder="599489"
+                    required
+                  />
+                  <h5 className="label">Destination Postal Code</h5>
+                  <input
+                    type="text"
+                    name="destinationPostal"
+                    pattern="[0-9]{6}"
+                    placeholder="599489"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="request-btn public-register-btn passenger-btn"
+                  >
+                    Find Trip
+                  </button>
+                </form>
+              </div>
+            )}
+            {tripStatus === "finding" && (
+              <div className="passenger-loading-section">
+                <p>Finding a driver...</p>
+                <div className="loader" />
+              </div>
+            )}
+            {tripStatus === "found" && (
+              <div className="passenger-loading-section">
+                <p>Ride in progress</p>
+                <img src={car_gif} alt="" />
+              </div>
+            )}
           </div>
         </div>
       </div>

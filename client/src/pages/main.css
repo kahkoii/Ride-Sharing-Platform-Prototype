@@ -268,6 +268,16 @@ body {
   font-size: 20px;
 }
 
+.passenger-loading-section {
+  padding-top: 180px;
+  font-size: 26px;
+  text-align: center;
+}
+
+.passenger-loading-section p {
+  margin-bottom: 50px;
+}
+
 .driver-dashboard {
   background-color: #fff;
   color: #000;
