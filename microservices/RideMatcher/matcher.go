@@ -110,7 +110,7 @@ func sendPassengerTripHistory() {
 	if len(historyQueue) > 0 {
 		// attempt send to passenger API endpoint
 		jsonValue, _ := json.Marshal(historyQueue)
-		url := passenger_api + "/save-history"
+		url := passenger_api + "/history"
 		res, _ := http.Post(url, "application/json", bytes.NewBuffer(jsonValue))
 		if res.StatusCode == 200 {
 			// if request is successful, delete stored history

@@ -507,51 +507,48 @@ func retrieveUID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func saveHistory(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+func history(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// retrieve history
+		token := getTokenFromHeader(r)
+		existingUID := tokenMap[token]
+		if existingUID == "" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("401 - Invalid token"))
+			return
+		}
+		fmt.Println("Received HISTORY GET request")
+		trips := DB_retrieveHistory(existingUID)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(trips)
+	} else if r.Method == "POST" {
+		// save history from ride matcher to database
+		if r.Header.Get("Content-type") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - Header content type not application/json"))
+			return
+		}
+		fmt.Println("Received HISTORY POST request")
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		// convert JSON to object
+		var ct []completedTrip
+		json.Unmarshal(reqBody, &ct)
+		if DB_saveHistory(ct) {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - Error saving history to database, please try again"))
+		}
+		w.WriteHeader(http.StatusOK)
+	} else {
 		w.WriteHeader(http.StatusMethodNotAllowed)
         w.Write([]byte("405 - Invalid API method"))
 		return
 	}
-	if r.Header.Get("Content-type") != "application/json" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("400 - Header content type not application/json"))
-		return
-	}
-	reqBody, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	// convert JSON to object
-	var ct []completedTrip
-	json.Unmarshal(reqBody, &ct)
-	if DB_saveHistory(ct) {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 - Error saving history to database, please try again"))
-	}
-	w.WriteHeader(http.StatusOK)
-}
-
-func retrieveHistory(w http.ResponseWriter, r *http.Request) {
-	token := getTokenFromHeader(r)
-	existingUID := tokenMap[token]
-	if existingUID == "" {
-        w.WriteHeader(http.StatusNotFound)
-        w.Write([]byte("401 - Invalid token"))
-        return
-    }
-	if r.Method != "GET" {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-        w.Write([]byte("405 - Invalid API method"))
-		return
-	}
-	fmt.Println("Received RETRIEVE HISTORY GET request")
-	trips := DB_retrieveHistory(existingUID)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(trips)
 }
 
 func main() {
@@ -570,8 +567,14 @@ func main() {
 	router.HandleFunc("/api/v1/passenger/details", details).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/delete", deleteAccount).Methods("DELETE")
 	router.HandleFunc("/api/v1/passenger/retrieve-uid", retrieveUID).Methods("GET")
-	router.HandleFunc("/api/v1/passenger/save-history", saveHistory).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/retrieve-history", retrieveHistory).Methods("GET")
+	router.HandleFunc("/api/v1/passenger/history", history).Methods("GET","POST")
+	/**
+	router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
+	router.HandleFunc("/api/v1/passenger/account", details|register|edit|deleteAccount).Methods("GET","POST","PUT","DELETE")
+	router.HandleFunc("/api/v1/passenger/uid", retrieveUID).Methods("GET")
+	**/
 
 	// establish database connection
 	var err error

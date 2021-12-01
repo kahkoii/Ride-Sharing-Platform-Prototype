@@ -94,7 +94,7 @@ const apiDelete = async (accType: string, token: string) => {
 const apiGetPassengerHistory = async (token: string) => {
   const res = await axios({
     method: "get",
-    url: passengerBaseURL + "/retrieve-history?token=" + token,
+    url: passengerBaseURL + "/history?token=" + token,
   });
   return res;
 };
