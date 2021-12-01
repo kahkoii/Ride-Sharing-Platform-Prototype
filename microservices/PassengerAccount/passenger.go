@@ -566,14 +566,11 @@ func main() {
 	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/passenger/details", details).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/delete", deleteAccount).Methods("DELETE")
-	router.HandleFunc("/api/v1/passenger/retrieve-uid", retrieveUID).Methods("GET")
+	router.HandleFunc("/api/v1/passenger/uid", retrieveUID).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/history", history).Methods("GET","POST")
 	/**
-	router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/account", details|register|edit|deleteAccount).Methods("GET","POST","PUT","DELETE")
-	router.HandleFunc("/api/v1/passenger/uid", retrieveUID).Methods("GET")
 	**/
 
 	// establish database connection

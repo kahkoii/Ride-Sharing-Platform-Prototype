@@ -58,7 +58,7 @@ func getValueFromHeader(r *http.Request, valueName string) string {
 
 func getUIDByToken(token string, accType string) string {
 	// send tokens to respective APIs to get ID back
-	url := "/retrieve-uid" + "?token=" + token
+	url := "/uid" + "?token=" + token
 	if accType == "passenger" {
     	url = passenger_api + url
 	} else if accType == "driver" {

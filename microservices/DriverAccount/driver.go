@@ -479,7 +479,7 @@ func main() {
 	router.HandleFunc("/api/v1/driver/edit", edit).Methods("PUT")
 	router.HandleFunc("/api/v1/driver/details", details).Methods("GET")
 	router.HandleFunc("/api/v1/driver/delete", deleteAccount).Methods("DELETE")
-	router.HandleFunc("/api/v1/driver/retrieve-uid", retrieveUID).Methods("GET")
+	router.HandleFunc("/api/v1/driver/uid", retrieveUID).Methods("GET")
 
 	// establish database connection
 	var err error
