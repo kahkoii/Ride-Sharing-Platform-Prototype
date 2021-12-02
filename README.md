@@ -46,3 +46,10 @@ Having passenger and driver account processing on different microservices allows
 Since account-related processes for passengers and drivers are handled in separate microservices, in practice, 2 separate databases could be used for passenger and driver accounts. With this design, the passenger account database would have no direct access to the driver account database, only having the relevant API endpoints exposed to the client as required. This makes the system as a whole more secure, because in the unlikely event of a database breach, only the data within the affected database would be compromised, while the other remains safe. Having the same microservice serve both passengers and drivers, and using the same database for all accounts means all accounts being compromised in the event of a breach, thus making this system architecture comparibly safer.
 
 ## 4. Microservices Design
+![image](https://user-images.githubusercontent.com/33172738/144379107-3f29a757-998d-4670-9b45-ad960bbc4729.png)
+
+### 4.1 PassengerAccount
+
+### 4.2 DriverAccount
+
+### 4.3 RideMatcher
