@@ -7,7 +7,7 @@ const apiLogin = async (accType: string, email: string, phone: string) => {
   const res = await axios({
     method: "post",
     url:
-      (accType === "passenger" ? passengerBaseURL : driverBaseURL) + "/login",
+      (accType === "passenger" ? passengerBaseURL : driverBaseURL) + "/session",
     headers: { "Content-Type": "application/json" },
     data: JSON.stringify({
       email,
@@ -19,26 +19,22 @@ const apiLogin = async (accType: string, email: string, phone: string) => {
 
 const apiLogout = async (token: string, accType: string) => {
   const res = await axios({
-    method: "post",
+    method: "delete",
     url:
-      (accType === "passenger" ? passengerBaseURL : driverBaseURL) + "/logout",
-    headers: { "Content-Type": "application/json" },
-    data: JSON.stringify({
+      (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
+      "/session?token=" +
       token,
-    }),
   });
   return res;
 };
 
 const apiVerifyToken = async (token: string, accType: string) => {
   const res = await axios({
-    method: "post",
+    method: "get",
     url:
-      (accType === "passenger" ? passengerBaseURL : driverBaseURL) + "/verify",
-    headers: { "Content-Type": "application/json" },
-    data: JSON.stringify({
+      (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
+      "/session?token=" +
       token,
-    }),
   });
   return res;
 };

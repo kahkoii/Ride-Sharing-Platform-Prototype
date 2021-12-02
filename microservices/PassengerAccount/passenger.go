@@ -35,10 +35,6 @@ type passengerDetailsNoID struct {
 	Email string `json:"email"`
 }
 
-type tokenString struct {
-	Token string `json:"token"`
-}
-
 type completedTrip struct {
 	DriverUID string 			`json:"driverUID"`
 	PassengerUID string 		`json:"passengerUID"`
@@ -65,7 +61,7 @@ func getTokenFromHeader(r *http.Request) string {
     if token, ok := v["token"]; ok {
         return token[0]
     }
-	return "INVALID"
+	return ""
 }
 
 // UID: a 16 char hexadecimal string
@@ -247,18 +243,33 @@ func DB_retrieveHistory(uid string) []completedTripNoID {
 	return trips
 }
 
-func login(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		fmt.Println("Received LOGIN POST request")
+func session(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// verify session token
+		fmt.Println("Received SESSION GET request")
+		token := getTokenFromHeader(r)
+		if token == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - No token was provided"))
+			return
+		}
+		if tokenIsValid(token) {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - Invalid token"))
+		}
+	} else if r.Method == "POST" {
+		// login
+		fmt.Println("Received SESSION POST request")
 		if r.Header.Get("Content-type")=="application/json" {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
 				// convert JSON to object
 				var credentials loginCredentials
 				json.Unmarshal(reqBody, &credentials) 
-				fmt.Println("RECEIVED: ", credentials)
 				
-				// get passenger's record from database
+				// get Passenger's record from database
 				p := DB_getPassengerByEmail(credentials.Email)
 
 				// check if there is an entry with the submitted email
@@ -288,79 +299,23 @@ func login(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
         	w.Write([]byte("400 - Header content type not application/json"))
 		}
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-        w.Write([]byte("405 - Invalid API method"))
-	}
-}
-
-func logout(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		fmt.Println("Received LOGOUT POST request")
-		if r.Header.Get("Content-type")=="application/json" {
-			reqBody, err := ioutil.ReadAll(r.Body)
-			if err == nil {
-				// convert JSON to object
-				var tokenObj tokenString
-				json.Unmarshal(reqBody, &tokenObj)
-				token := tokenObj.Token
-				if tokenObj.Token == "" {
-					w.WriteHeader(http.StatusBadRequest)
-        			w.Write([]byte("400 - No token received"))
-				} else {
-					if tokenIsValid(token) {
-						fmt.Println("Removing token: ", token)
-						disableToken(token)
-						printMap(tokenMap)
-						w.WriteHeader(http.StatusOK)
-					} else {
-						w.WriteHeader(http.StatusBadRequest)
-        				w.Write([]byte("400 - Invalid token"))
-					}
-					
-				}
-			} else {
-                w.WriteHeader(http.StatusUnprocessableEntity)
-                w.Write([]byte("422 - Logout token should be in JSON format"))
-            }
-		} else {
+	} else if r.Method == "DELETE" {
+		// logout
+		fmt.Println("Received SESSION DELETE request")
+		token := getTokenFromHeader(r)
+		if token == "" {
 			w.WriteHeader(http.StatusBadRequest)
-        	w.Write([]byte("400 - Header content type not application/json"))
+			w.Write([]byte("400 - No token was provided"))
+			return
 		}
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-        w.Write([]byte("405 - Invalid API method"))
-	}
-}
-
-func verifyToken(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		fmt.Println("Received LOGOUT POST request")
-		if r.Header.Get("Content-type")=="application/json" {
-			reqBody, err := ioutil.ReadAll(r.Body)
-			if err == nil {
-				// convert JSON to object
-				var tokenObj tokenString
-				json.Unmarshal(reqBody, &tokenObj)
-				token := tokenObj.Token
-				if tokenObj.Token == "" {
-					w.WriteHeader(http.StatusBadRequest)
-        			w.Write([]byte("400 - No token received"))
-				} else {
-					if tokenIsValid(token) {
-						w.WriteHeader(http.StatusOK)
-					} else {
-						w.WriteHeader(http.StatusBadRequest)
-        				w.Write([]byte("400 - Invalid token"))
-					}
-				}
-			} else {
-                w.WriteHeader(http.StatusUnprocessableEntity)
-                w.Write([]byte("422 - Token should be in JSON format"))
-            }
+		if tokenIsValid(token) {
+			fmt.Println("Removing token: ", token)
+			disableToken(token)
+			printMap(tokenMap)
+			w.WriteHeader(http.StatusOK)
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
-        	w.Write([]byte("400 - Header content type not application/json"))
+			w.Write([]byte("400 - Invalid token"))
 		}
 	} else {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -373,6 +328,11 @@ func account(w http.ResponseWriter, r *http.Request) {
 		// get account details
 		fmt.Println("Received ACCOUNT GET request")
 		token := getTokenFromHeader(r)
+		if token == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - No token was provided"))
+			return
+		}
 		existingUID := tokenMap[token]
 		if existingUID == "" {
 			w.WriteHeader(http.StatusNotFound)
@@ -424,6 +384,11 @@ func account(w http.ResponseWriter, r *http.Request) {
 		// edit account details
 		fmt.Println("Received ACCOUNT PUT request")
 		token := getTokenFromHeader(r)
+		if token == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - No token was provided"))
+			return
+		}
 		existingUID := tokenMap[token]
 		if existingUID == "" {
 			w.WriteHeader(http.StatusNotFound)
@@ -478,6 +443,11 @@ func account(w http.ResponseWriter, r *http.Request) {
 func retrieveUID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		token := getTokenFromHeader(r)
+		if token == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - No token was provided"))
+			return
+		}
 		existingUID := tokenMap[token]
 		if existingUID == "" {
 			w.WriteHeader(http.StatusNotFound)
@@ -497,6 +467,11 @@ func history(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// retrieve history
 		token := getTokenFromHeader(r)
+		if token == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - No token was provided"))
+			return
+		}
 		existingUID := tokenMap[token]
 		if existingUID == "" {
 			w.WriteHeader(http.StatusNotFound)
@@ -545,9 +520,7 @@ func main() {
 
 	// setup API routers
 	router := mux.NewRouter()
-    router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
+    router.HandleFunc("/api/v1/passenger/session", session).Methods("GET","POST","DELETE")
 	router.HandleFunc("/api/v1/passenger/account", account).Methods("GET","POST","PUT","DELETE")
 	router.HandleFunc("/api/v1/passenger/uid", retrieveUID).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/history", history).Methods("GET","POST")
