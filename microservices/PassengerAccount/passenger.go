@@ -368,9 +368,24 @@ func verifyToken(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func register(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		fmt.Println("Received REGISTER PUT request")
+func account(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// get account details
+		fmt.Println("Received ACCOUNT GET request")
+		token := getTokenFromHeader(r)
+		existingUID := tokenMap[token]
+		if existingUID == "" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("401 - Invalid token"))
+		} else {
+			accDetails := DB_getDetailsByUID(existingUID)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(accDetails)
+		}
+	} else if r.Method == "POST" {
+		// register account
+		fmt.Println("Received ACCOUNT POST request")
 		if r.Header.Get("Content-type")=="application/json" {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
@@ -405,23 +420,16 @@ func register(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
         	w.Write([]byte("400 - Header content type not application/json"))
 		}
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-        w.Write([]byte("405 - Invalid API method"))
-	}
-}
-
-func edit(w http.ResponseWriter, r *http.Request) {
-	token := getTokenFromHeader(r)
-	existingUID := tokenMap[token]
-	if existingUID == "" {
-        w.WriteHeader(http.StatusNotFound)
-        w.Write([]byte("401 - Invalid token"))
-        return
-    }
-
-	if r.Method == "PUT" {
-		fmt.Println("Received EDIT PUT request")
+	} else if r.Method == "PUT" {
+		// edit account details
+		fmt.Println("Received ACCOUNT PUT request")
+		token := getTokenFromHeader(r)
+		existingUID := tokenMap[token]
+		if existingUID == "" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("401 - Invalid token"))
+			return
+		}
 		if r.Header.Get("Content-type")=="application/json" {
 			reqBody, err := ioutil.ReadAll(r.Body)
 			if err == nil {
@@ -456,37 +464,15 @@ func edit(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
         	w.Write([]byte("400 - Header content type not application/json"))
 		}
+	} else if r.Method == "DELETE" {
+		// deletion of account not allowed according to requirements
+		fmt.Println("Received DELETE ACCOUNT request")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 - Deletion of account not allowed"))
 	} else {
 		w.WriteHeader(http.StatusMethodNotAllowed)
         w.Write([]byte("405 - Invalid API method"))
 	}
-}
-
-func details(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		fmt.Println("Received DETAILS GET request")
-		token := getTokenFromHeader(r)
-		existingUID := tokenMap[token]
-		if existingUID == "" {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("401 - Invalid token"))
-		} else {
-			accDetails := DB_getDetailsByUID(existingUID)
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(accDetails)
-		}
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-        w.Write([]byte("405 - Invalid API method"))
-	}
-}
-
-func deleteAccount(w http.ResponseWriter, r *http.Request) {
-	// Deletion of account not allowed according to requirements
-	fmt.Println("Received DELETE ACCOUNT request")
-	w.WriteHeader(http.StatusBadRequest)
-	w.Write([]byte("400 - Deletion of account not allowed"))
 }
 
 func retrieveUID(w http.ResponseWriter, r *http.Request) {
@@ -562,16 +548,9 @@ func main() {
     router.HandleFunc("/api/v1/passenger/login", login).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/logout", logout).Methods("POST")
 	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/register", register).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/edit", edit).Methods("PUT")
-	router.HandleFunc("/api/v1/passenger/details", details).Methods("GET")
-	router.HandleFunc("/api/v1/passenger/delete", deleteAccount).Methods("DELETE")
+	router.HandleFunc("/api/v1/passenger/account", account).Methods("GET","POST","PUT","DELETE")
 	router.HandleFunc("/api/v1/passenger/uid", retrieveUID).Methods("GET")
 	router.HandleFunc("/api/v1/passenger/history", history).Methods("GET","POST")
-	/**
-	router.HandleFunc("/api/v1/passenger/verify", verifyToken).Methods("POST")
-	router.HandleFunc("/api/v1/passenger/account", details|register|edit|deleteAccount).Methods("GET","POST","PUT","DELETE")
-	**/
 
 	// establish database connection
 	var err error

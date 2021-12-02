@@ -47,8 +47,7 @@ const apiRegister = async (accType: string, accDetails: any) => {
   const res = await axios({
     method: "post",
     url:
-      (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
-      "/register",
+      (accType === "passenger" ? passengerBaseURL : driverBaseURL) + "/account",
     headers: { "Content-Type": "application/json" },
     data: JSON.stringify(accDetails),
   });
@@ -60,7 +59,7 @@ const apiGetDetails = async (accType: string, token: string) => {
     method: "get",
     url:
       (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
-      "/details?token=" +
+      "/account?token=" +
       token,
     headers: { "Content-Type": "application/json" },
   });
@@ -72,7 +71,7 @@ const apiEdit = async (accType: string, token: string, accDetails: any) => {
     method: "put",
     url:
       (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
-      "/edit?token=" +
+      "/account?token=" +
       token,
     headers: { "Content-Type": "application/json" },
     data: JSON.stringify(accDetails),
@@ -85,7 +84,7 @@ const apiDelete = async (accType: string, token: string) => {
     method: "delete",
     url:
       (accType === "passenger" ? passengerBaseURL : driverBaseURL) +
-      "/delete?token=" +
+      "/account?token=" +
       token,
   });
   return res;
