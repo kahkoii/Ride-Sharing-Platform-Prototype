@@ -22,4 +22,4 @@ CREATE TABLE History (
 );
 
 INSERT INTO Passengers (UID, FirstName, LastName, Phone, Email)
-VALUES ("ift3houkwp4DSkbp", "Jake", "Lee", "91827162", "jakelee@gmail.com");
+VALUES ("ift3houkwp4DSkbp", "Jake", "Lee", "91234567", "test@gmail.com");
