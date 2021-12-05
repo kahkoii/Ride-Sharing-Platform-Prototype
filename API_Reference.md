@@ -12,9 +12,9 @@ This endpoint is used to check whether a provided token is currently valid.
 
 #### Query Parameters
 
-| Name  | Required | Description                                                                                                                                  | Example             |
-| ----- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| token | Yes      | Pass the value of the `token` received via the [POST passenger/session](#1.2-post-passenger/session) endpoint as the value of this parameter | xGVp-Etet-9pu3-Fkx3 |
+| Name  | Required | Description                                                                                                                                | Example             |
+| ----- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| token | Yes      | Pass the value of the `token` received via the [POST passenger/session](#12-post-passengersession) endpoint as the value of this parameter | xGVp-Etet-9pu3-Fkx3 |
 
 #### Example Request
 
