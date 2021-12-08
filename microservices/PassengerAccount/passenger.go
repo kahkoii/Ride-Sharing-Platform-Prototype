@@ -224,7 +224,7 @@ func DB_saveHistory(hist []completedTrip) bool {
 func DB_retrieveHistory(uid string) []completedTripNoID {
 	fmt.Println("Retrieving history information from database...")
 	trips := make([]completedTripNoID, 0)
-	queryString := fmt.Sprintf("SELECT id, LocationPostal, DestinationPostal, StartTime, EndTime FROM History WHERE PassengerUID='%s'", uid)
+	queryString := fmt.Sprintf("SELECT id, LocationPostal, DestinationPostal, StartTime, EndTime FROM History WHERE PassengerUID='%s' ORDER BY StartTime DESC", uid)
 	results, err := db.Query(queryString)
 	
 	if err != nil {
