@@ -490,36 +490,37 @@ Base URL: http://localhost:5003/api/v1
 
 ---
 
-### 3.1 POST matcher/queue-passenger
+### 3.1 POST matcher/queue
 
-This endpoint is used to add a passenger to the queue to find a driver for a ride.
+This endpoint is used to add a passenger or driver to the queue to be matched for a ride.
 **This endpoint should be used with the [WebSocket endpoint](#34-websocket) to receive updates for the queue status.**
 
 #### Endpoint URL
 
 ```url
-http://localhost:5003/api/v1/matcher/queue-passenger
+http://localhost:5003/api/v1/matcher/queue
 ```
 
 #### Query Parameters
 
-| Name  | Required | Description                                                                                                                                | Example             |
-| ----- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
-| token | Yes      | Pass the value of the `token` received via the [POST passenger/session](#12-post-passengersession) endpoint as the value of this parameter | xGVp-Etet-9pu3-Fkx3 |
+| Name  | Required | Description                                                                                                                                                                                  | Example             |
+| ----- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| type  | Yes      | The account type being added to the search queue. Only accepts `passenger` or `driver` as values                                                                                             |
+| token | Yes      | Pass the value of the `token` received via the [POST passenger/session](#12-post-passengersession) or [POST driver/session](#22-post-driversession) endpoints as the value of this parameter | xGVp-Etet-9pu3-Fkx3 |
 
 #### JSON Body Parameters
 
-| Name                | Type   | Required | Description                               |
-| ------------------- | ------ | -------- | ----------------------------------------- |
-| `locationPostal`    | string | Required | 6-digit Postal code of the starting point |
-| `destinationPostal` | string | Required | 6-digit Postal code of the destination    |
+| Name                | Type   | Required                               | Description                               |
+| ------------------- | ------ | -------------------------------------- | ----------------------------------------- |
+| `locationPostal`    | string | Required for `passenger` account types | 6-digit Postal code of the starting point |
+| `destinationPostal` | string | Required for `passenger` account types | 6-digit Postal code of the destination    |
 
 #### Example Request
 
 cURL
 
 ```sh
-curl --request POST 'http://localhost:5003/api/v1/matcher/queue-passenger?token=xGVp-Etet-9pu3-Fkx3' \
+curl --request POST 'http://localhost:5003/api/v1/matcher/queue?type=passenger&token=xGVp-Etet-9pu3-Fkx3' \
 --header 'Content-Type: application/json' \
 --data '{
     "locationPostal": "123456",
@@ -530,7 +531,7 @@ curl --request POST 'http://localhost:5003/api/v1/matcher/queue-passenger?token=
 Windows cURL
 
 ```sh
-curl --request POST "http://localhost:5003/api/v1/matcher/queue-passenger?token=xGVp-Etet-9pu3-Fkx3" --header "Content-Type: application/json" --data "{\"locationPostal\": \"123456\",\"destinationPostal\": \"654321\"}"
+curl --request POST "http://localhost:5003/api/v1/matcher/queue?type=passenger&token=xGVp-Etet-9pu3-Fkx3" --header "Content-Type: application/json" --data "{\"locationPostal\": \"123456\",\"destinationPostal\": \"654321\"}"
 ```
 
 #### Response
@@ -541,45 +542,20 @@ The response will be a status code `200` is successful, or an error code with a 
 
 ---
 
-### 3.2 POST matcher/queue-driver
-
-This endpoint is used to add a driver to the queue to find a passenger for a ride.
-**This endpoint should be used with the [WebSocket endpoint](#34-websocket) to receive updates for the queue status.**
-
-#### Endpoint URL
-
-```url
-http://localhost:5003/api/v1/matcher/queue-driver
-```
-
 #### Query Parameters
 
 | Name  | Required | Description                                                                                                                          | Example             |
 | ----- | -------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
 | token | Yes      | Pass the value of the `token` received via the [POST driver/session](#22-post-driversession) endpoint as the value of this parameter | xGVp-Etet-9pu3-Fkx3 |
 
-#### Example Request
-
-```sh
-curl --request POST "http://localhost:5003/api/v1/matcher/queue-driver?token=xGVp-Etet-9pu3-Fkx3"
-```
-
-#### Response
-
-The response will be a status code `200` is successful, or an error code with a corresponding status message if unsuccessful.
-
-**\*Note: A success response only means that the driver was added to the queue, not that a passenger was found.**
-
----
-
-### 3.3 POST matcher/end-trip
+### 3.2 POST matcher/trip
 
 This endpoint is used to end an existing trip using a valid driver's token.
 
 #### Endpoint URL
 
 ```url
-http://localhost:5003/api/v1/matcher/end-trip
+http://localhost:5003/api/v1/matcher/trip
 ```
 
 #### Query Parameters
@@ -591,7 +567,7 @@ http://localhost:5003/api/v1/matcher/end-trip
 #### Example Request
 
 ```sh
-curl --request POST "http://localhost:5003/api/v1/matcher/end-trip?token=xGVp-Etet-9pu3-Fkx3"
+curl --request POST "http://localhost:5003/api/v1/matcher/trip?token=xGVp-Etet-9pu3-Fkx3"
 ```
 
 #### Response

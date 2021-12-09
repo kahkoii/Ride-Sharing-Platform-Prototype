@@ -9,7 +9,7 @@ const apiPassengerFindTrip = async (
 ) => {
   const res = await axios({
     method: "post",
-    url: matcherBaseURL + "/queue-passenger?token=" + token,
+    url: matcherBaseURL + "/queue?type=passenger&token=" + token,
     headers: { "Content-Type": "application/json" },
     data: JSON.stringify({
       locationPostal,
@@ -22,7 +22,7 @@ const apiPassengerFindTrip = async (
 const apiDriverStartSearch = async (token: string) => {
   const res = await axios({
     method: "post",
-    url: matcherBaseURL + "/queue-driver?token=" + token,
+    url: matcherBaseURL + "/queue?type=driver&token=" + token,
   });
   return res;
 };
@@ -30,7 +30,7 @@ const apiDriverStartSearch = async (token: string) => {
 const apiDriverEndTrip = async (token: string) => {
   const res = await axios({
     method: "post",
-    url: matcherBaseURL + "/end-trip?token=" + token,
+    url: matcherBaseURL + "/trip?token=" + token,
   });
   return res;
 };

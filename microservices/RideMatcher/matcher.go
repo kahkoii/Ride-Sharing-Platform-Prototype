@@ -149,94 +149,87 @@ func checkDriverQueueForDuplicates(slice []string, uid string) bool {
 	return false
 }
 
-func enqueuePassenger(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		fmt.Println("Received ENQUEUE PASSENGER POST request")
-		token := getValueFromHeader(r, "token")
-		if token == "" {
-			w.WriteHeader(http.StatusBadRequest)
-        	w.Write([]byte("400 - Invalid passenger token"))
-			return
-		}
+func queue(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received QUEUE POST request")
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+        w.Write([]byte("405 - Invalid API method"))
+		return
+	} 
+	accType := getValueFromHeader(r, "type")
+	token := getValueFromHeader(r, "token")
+	if token == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 - Invalid or no token provided"))
+		return
+	}
+	if accType == "passenger" {
 		uid := getUIDByToken(token, "passenger")
-		if uid != "" {
-			if !checkPassengerQueueForDuplicates(passengerQueue, uid) {
-				if r.Header.Get("Content-type") == "application/json" {
-					reqBody, err := ioutil.ReadAll(r.Body)
-					if err == nil {
-						var newTrip tripDetails
-						json.Unmarshal(reqBody, &newTrip)
-						if (newTrip.LocationPostal == "" || newTrip.DestinationPostal == ""){
-							w.WriteHeader(http.StatusBadRequest)
-							w.Write([]byte("400 - Location and destination postal codes are required"))
-							return
-						}
-						newTrip.PassengerUID = uid
-						fmt.Println("Added passenger ", uid, " to queue")
-						passengerQueue = append(passengerQueue, newTrip)
-						// create a new ws channel
-						c := make(chan string)
-						wsConnections[uid] = c
-						attemptMatch()
-						w.WriteHeader(http.StatusOK)
-					} else {
-						w.WriteHeader(http.StatusBadRequest)
-						w.Write([]byte(err.Error()))
-					}
-				} else {
-					w.WriteHeader(http.StatusBadRequest)
-					w.Write([]byte("400 - Header content type not application/json"))
-				}
-			} else {
-				w.WriteHeader(http.StatusBadRequest)
-        		w.Write([]byte("400 - Passenger is already in queue"))
-			}
-		} else {
+		if uid == "" {
 			w.WriteHeader(http.StatusBadRequest)
         	w.Write([]byte("400 - Invalid passenger UID"))
-		}
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-        w.Write([]byte("405 - Invalid API method"))
-	}
-}
-
-func enqueueDriver(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		fmt.Println("Received ENQUEUE DRIVER POST request")
-		token := getValueFromHeader(r, "token")
-		if token == "" {
-			w.WriteHeader(http.StatusBadRequest)
-        	w.Write([]byte("400 - Invalid driver token"))
 			return
 		}
+		if checkPassengerQueueForDuplicates(passengerQueue, uid) {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - Passenger is already in queue"))
+			return
+		}
+		if r.Header.Get("Content-type") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - Header content type not application/json"))
+			return
+		}
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		var newTrip tripDetails
+		json.Unmarshal(reqBody, &newTrip)
+		if (newTrip.LocationPostal == "" || newTrip.DestinationPostal == ""){
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - Location and destination postal codes are required"))
+			return
+		}
+		newTrip.PassengerUID = uid
+		fmt.Println("Added passenger ", uid, " to queue")
+		passengerQueue = append(passengerQueue, newTrip)
+		// create a new ws channel
+		c := make(chan string)
+		wsConnections[uid] = c
+		attemptMatch()
+		w.WriteHeader(http.StatusOK)
+	} else if accType == "driver" {
 		uid := getUIDByToken(token, "driver")
-		if uid != "" {
-			if checkDriverQueueForDuplicates(driverQueue, uid) {
-				w.WriteHeader(http.StatusBadRequest)
-        		w.Write([]byte("400 - Driver is already in queue"))
-				return
-			}
-			driverQueue = append(driverQueue, uid)
-			fmt.Println("Added driver ", uid, " to queue")
-			// create a new ws channel
-			c := make(chan string)
-			wsConnections[uid] = c
-			attemptMatch()
-			w.WriteHeader(http.StatusOK)
-		} else {
+		if uid == "" {
 			w.WriteHeader(http.StatusBadRequest)
         	w.Write([]byte("400 - Invalid driver UID"))
+			return
 		}
+		if checkDriverQueueForDuplicates(driverQueue, uid) {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - Driver is already in queue"))
+			return
+		}
+		driverQueue = append(driverQueue, uid)
+		fmt.Println("Added driver ", uid, " to queue")
+		// create a new ws channel
+		c := make(chan string)
+		wsConnections[uid] = c
+		attemptMatch()
+		w.WriteHeader(http.StatusOK)
 	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-        w.Write([]byte("405 - Invalid API method"))
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 - Account type invalid or not provided"))
 	}
 }
 
 func endTrip(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		fmt.Println("Received END TRIP POST request")
+		// end the trip
+		fmt.Println("Received TRIP POST request")
 		token := getValueFromHeader(r, "token")
 		if token == "" {
 			w.WriteHeader(http.StatusBadRequest)
@@ -335,9 +328,8 @@ func main() {
 
 	// setup API routers
 	router := mux.NewRouter()
-    router.HandleFunc("/api/v1/matcher/queue-passenger", enqueuePassenger).Methods("POST")
-	router.HandleFunc("/api/v1/matcher/queue-driver", enqueueDriver).Methods("POST")
-	router.HandleFunc("/api/v1/matcher/end-trip", endTrip).Methods("POST")
+	router.HandleFunc("/api/v1/matcher/queue", queue).Methods("POST")
+	router.HandleFunc("/api/v1/matcher/trip", endTrip).Methods("POST")
 	router.HandleFunc("/api/v1/matcher/ws", wsHandler)
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
