@@ -33,7 +33,37 @@ Currently, the main go program serves the built web application from the `./clie
 
 5. Start the application with `yarn start` and visit 'localhost:3000' to view the application
 
-## 3. System Architecture
+## 3. Run Instructions
+
+**After starting up the services, the web application can be accessed locally via http://localhost:5000**
+
+### Easy Start (Windows)
+
+To start the main client web application and the 3 microservices automatically, simply run:
+
+```sh
+run.bat
+```
+
+### Manual Start
+
+To manually start the required processes, run the following commands in separate command line terminals.
+
+```sh
+# Start client web app
+go run main.go
+
+# Start passenger microservice
+go run microservices/PassengerAccount/passenger.go
+
+# Start driver microservice
+go run microservices/DriverAccount/driver.go
+
+# Start ride matcher microservice
+go run microservices/RideMatcher/matcher.go
+```
+
+## 4. System Architecture
 
 ![image](https://user-images.githubusercontent.com/33172738/144379107-3f29a757-998d-4670-9b45-ad960bbc4729.png)
 
@@ -43,11 +73,11 @@ The microservices involved in this project are split into 3 groups, PassengerAcc
 
 Since HTTP requests can only be made client-side towards an API server and not the other way round, to facilitate the updating of the client-side frontend whenever a passenger and driver is matched, a WebSocket was used. WebSockets use a bi-directional messaging pattern as opposed to the request-response pattern of HTTP requests, and serves to better handle ongoing updates. Since the matching of passengers with drivers takes an indefinite amount of time, using HTTP requests to wait for an update may cause the requests to timeout before request fulfillment. As such, it would be more appropriate to establish a WebSocket connection when a passenger or driver client begins searching for a match, and also throughout the course of the ride, to update the client's of the ride status accordingly.
 
-### 3.1 Scaling Considerations
+### 4.1 Scaling Considerations
 
 Having passenger and driver account processing on different microservices allows for more resources to be allocated to the specific microservice according to user volume. For example, if the platform sees a surge in passengers using the platform while drivers remain about the same, more servers can be setup to run the PassengerAccount microservice, whilst the DriverAccount one can remain unchanged. Thus, this would help the platform scale according to demand, and better optimizing resources and saving costs.
 
-### 3.2 Security Considerations
+### 4.2 Security Considerations
 
 Since account-related processes for passengers and drivers are **handled in separate microservices**, in practice, 2 separate databases could be used for passenger and driver accounts. With this design, the passenger account database would have no direct access to the driver account database, only having the relevant API endpoints exposed to the client as required. This makes the system as a whole more secure, because in the unlikely event of a database breach, only the data within the affected database would be compromised, while the other remains safe. Having the same microservice serve both passengers and drivers, and using the same database for all accounts means all accounts being compromised in the event of a breach, thus making this system architecture comparably safer.
 
@@ -55,7 +85,7 @@ Another security consideration is the verification of HTTP requests using **toke
 
 On top of those, a third security consideration is the **careful usage of user unique identification (UID)**. Since the assignment requirements do not specify password as a field in account details, users are authenticated only by the email and phone. However, it is also stated that users should be able to change their emails and phone numbers at will, so neither the email nor the phone can be used as primary keys in the database, thus the UID was created. UIDs are randomly generated 16 character hexadecimal strings that serve as primary keys, and they are intended to be kept private, and is designed not to be sent to any client devices at all. This is intentional because unlike tokens, UIDs are meant to be permanently tagged to user accounts, so exposing the UID of an account may compromise the integrity of that account. Thus, transfer of UID data only occurs between the microservices, and never between the client and any microservice. Currently, both PassengerAccount and DriverAccount microservices have a `/uid` API endpoint that accepts `GET` methods to retrieve the UID of a user given a token. This is supposed to be used only by the RideMatcher microservice, but for simplicity, the current implementation exposes the `/uid` endpoint publicly. However, in practice, the endpoint can be restricted to only be used as an internal API instead of a public one, by either restricting the origin of requests made to that endpoint to be the RideMatcher's origin, or by making use of secrets to only send a UID response only if the secret is valid.
 
-### 3.3 Downtime Considerations
+### 4.3 Downtime Considerations
 
 With this system architecture, it is expected that in the event of any of the microservices being downed, no rides would be able to be made. This is intentional because in a real-world context, for safety and legal reasons, we need to be sure who the passenger and the driver is for any ride provided by the platform. As such, both Passenger and Driver account microservices would need to be up for verification purposes, and the Ride Matcher microservice would definitely be required to match rides in the first place.
 
