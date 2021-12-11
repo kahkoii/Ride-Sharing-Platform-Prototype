@@ -71,7 +71,7 @@ run.bat
 
 ## 4. System Architecture
 
-![image](https://user-images.githubusercontent.com/33172738/144379107-3f29a757-998d-4670-9b45-ad960bbc4729.png)
+![image](https://user-images.githubusercontent.com/33172738/145669790-7fdf6182-2d2c-460f-8c4b-2973a8b57c42.png)
 
 **\*For a detailed guide to the APIs, please refer to the [API Reference](./API_Reference.md) file**
 
