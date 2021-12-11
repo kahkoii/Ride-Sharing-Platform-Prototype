@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/static/css/main.b614384c.chunk.css",
+    "main.js": "/static/js/main.b7ba96d7.chunk.js",
+    "main.js.map": "/static/js/main.b7ba96d7.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.3684bd12.js",
+    "runtime-main.js.map": "/static/js/runtime-main.3684bd12.js.map",
+    "static/js/2.fa7cc4d7.chunk.js": "/static/js/2.fa7cc4d7.chunk.js",
+    "static/js/2.fa7cc4d7.chunk.js.map": "/static/js/2.fa7cc4d7.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.b614384c.chunk.css.map": "/static/css/main.b614384c.chunk.css.map",
+    "static/js/2.fa7cc4d7.chunk.js.LICENSE.txt": "/static/js/2.fa7cc4d7.chunk.js.LICENSE.txt",
+    "static/media/main.css": "/static/media/RiderHome.fd0c0b0f.jpeg",
+    "static/media/ShrideLogo.a1351f7c.svg": "/static/media/ShrideLogo.a1351f7c.svg",
+    "static/media/map.88ed60b5.png": "/static/media/map.88ed60b5.png",
+    "static/media/moving_car.400fbb06.gif": "/static/media/moving_car.400fbb06.gif"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3684bd12.js",
+    "static/js/2.fa7cc4d7.chunk.js",
+    "static/css/main.b614384c.chunk.css",
+    "static/js/main.b7ba96d7.chunk.js"
+  ]
+}

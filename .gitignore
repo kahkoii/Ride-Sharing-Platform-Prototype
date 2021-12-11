@@ -6,9 +6,6 @@
 # testing
 /client/coverage
 
-# production
-/client/build
-
 # misc
 /references
 /client.DS_Store
