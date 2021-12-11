@@ -19,7 +19,11 @@ go get -u github.com/gorilla/websocket
 go get -u github.com/go-sql-driver/mysql
 ```
 
-### 2.2 (Optional) Setup React Webapp for Development
+### 2.2 Database Setup
+
+Install MySQL locally and run the `passengersetup.sql` and `driversetup.sql` files located under the PassengerAccount and DriverAccount microservices to setup the databases. Afterwards, scroll to the bottom of the `passenger.go` and `driver.go` and change the username, password and port number for the database according to your local MySQL installation settings.
+
+### 2.3 (Optional) Setup React Webapp for Development
 
 Currently, the main go program serves the built web application from the `./client/build` folder. You may choose to install the required dependencies to run the web project independently for _development purposes_, but this is **NOT** necessary for the purposes of grading/deployment.
 
