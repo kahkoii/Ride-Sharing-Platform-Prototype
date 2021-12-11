@@ -41,14 +41,6 @@ Currently, the main go program serves the built web application from the `./clie
 
 **After starting up the services, the web application can be accessed locally via http://localhost:5000**
 
-### Easy Start (Windows)
-
-To start the main client web application and the 3 microservices automatically, simply run:
-
-```sh
-run.bat
-```
-
 ### Manual Start
 
 To manually start the required processes, run the following commands in separate command line terminals.
@@ -65,6 +57,16 @@ go run microservices/DriverAccount/driver.go
 
 # Start ride matcher microservice
 go run microservices/RideMatcher/matcher.go
+```
+
+### Easy Start (Windows)
+
+**Note: Easy Start is not recommended, there are some bugs that cause the go programs to not respond occasionally when the run.bat file is used**
+
+To start the main client web application and the 3 microservices automatically, simply run:
+
+```sh
+run.bat
 ```
 
 ## 4. System Architecture
