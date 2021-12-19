@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  frontend:
+    # depends_on:
+    #   - database
+    #   - MS1
+    #   - MS2
+    #   - MS3
+    build:
+      context: ./client
+    container_name: frontend-sever
+    ports:
+      - 5000:5000
+    deploy:
+      restart_policy:
+        condition: on-failure
