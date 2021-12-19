@@ -10,7 +10,7 @@ func main() {
 	router := gin.Default()
 
 	// Serve frontend static files
-	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
+	router.Use(static.Serve("/", static.LocalFile("./build", true)))
 
 	// Start and run the server
 	router.Run(":5000")
