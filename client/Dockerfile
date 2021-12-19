@@ -12,7 +12,6 @@ RUN go mod download
 # https://docs.docker.com/engine/reference/builder/#copy
 COPY frontend.go ./
 COPY ./build ./build
-RUN cd build && ls
 
 # Build
 RUN go build -o /frontend
