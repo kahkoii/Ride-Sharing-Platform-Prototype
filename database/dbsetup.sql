@@ -45,5 +45,3 @@ CREATE TABLE Drivers (
 
 INSERT INTO Drivers (UID, FirstName, LastName, Phone, Email, ID, LicenseNo)
 VALUES ("l29skA2pXatUW5i7", "Lewis", "Hamilton", "91234567", "test@gmail.com", "T0209172L", "SGX9261R");
-
-FLUSH PRIVILEGES;

@@ -5,8 +5,8 @@ services:
   frontend:
     depends_on:
       - db
+      - passenger-account
       - driver-account
-    #   - MS2
     #   - MS3
     build:
       context: ./client
@@ -27,6 +27,15 @@ services:
         condition: on-failure
     volumes:
       - mysql-data:/var/lib/mysql
+  # Passenger Account Microservice
+  passenger-account:
+    depends_on:
+      - db
+    build:
+      context: ./microservices/PassengerAccount
+    container_name: passenger-ms
+    ports:
+      - 5001:5001
   # Driver Account Microservice
   driver-account:
     depends_on:

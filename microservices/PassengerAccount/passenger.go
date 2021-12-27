@@ -138,7 +138,7 @@ func printMap(mapObj map[string]string) {
 func DB_getPassengerByEmail(email string) passengerDetails {
 	var p passengerDetails
 
-	queryString := fmt.Sprintf("Select * FROM passenger_db.passengers WHERE Email='%s'", email)
+	queryString := fmt.Sprintf("Select * FROM passenger_db.Passengers WHERE Email='%s'", email)
 	results, err := db.Query(queryString) 
 
     if err != nil {
@@ -190,7 +190,7 @@ func DB_editPassengerByUID(uid string, acc passengerDetails) bool {
 func DB_getDetailsByUID(uid string) passengerDetailsNoID {
 	var p passengerDetailsNoID
 
-	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email FROM passengers WHERE UID='%s'", uid);
+	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email FROM Passengers WHERE UID='%s'", uid);
 	results, err := db.Query(queryString) 
 
     if err != nil {
@@ -527,7 +527,7 @@ func main() {
 
 	// establish database connection
 	var err error
-	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/passenger_db")
+	db, err = sql.Open("mysql", "root:password@tcp(db:3306)/passenger_db")
 	if err != nil {
 		panic(err.Error())
 	} 
