@@ -125,7 +125,7 @@ func printMap(mapObj map[string]string) {
 func DB_getDriverByEmail(email string) driverDetails {
 	var p driverDetails
 
-	queryString := fmt.Sprintf("Select * FROM drivers WHERE Email='%s'", email)
+	queryString := fmt.Sprintf("Select * FROM Drivers WHERE Email='%s'", email)
 	results, err := db.Query(queryString) 
 
     if err != nil {
@@ -178,7 +178,7 @@ func DB_editDriverByUID(uid string, acc driverDetails) bool {
 func DB_getDetailsByUID(uid string) driverDetailsNoID {
 	var p driverDetailsNoID
 
-	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email, ID, LicenseNo FROM drivers WHERE UID='%s'", uid);
+	queryString := fmt.Sprintf("SELECT FirstName, LastName, Phone, Email, ID, LicenseNo FROM Drivers WHERE UID='%s'", uid);
 	results, err := db.Query(queryString) 
 
     if err != nil {
@@ -418,7 +418,7 @@ func main() {
 
 	// establish database connection
 	var err error
-	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/driver_db")
+	db, err = sql.Open("mysql", "root:password@tcp(db:3306)/driver_db")
 	if err != nil {
 		panic(err.Error())
 	} 

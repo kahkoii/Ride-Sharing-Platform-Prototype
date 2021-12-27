@@ -1,10 +1,11 @@
 version: "3.8"
 
 services:
+  # Frontend Server
   frontend:
-    # depends_on:
-    #   - database
-    #   - MS1
+    depends_on:
+      - db
+      - driver-account
     #   - MS2
     #   - MS3
     build:
@@ -15,3 +16,26 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+  # MySQL Database
+  db:
+    image: mysql-db:latest
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - mysql-data:/var/lib/mysql
+  # Driver Account Microservice
+  driver-account:
+    depends_on:
+      - db
+    build:
+      context: ./microservices/DriverAccount
+    container_name: driver-ms
+    ports:
+      - 5002:5002
+
+volumes:
+  mysql-data:
