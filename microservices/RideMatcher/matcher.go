@@ -317,8 +317,8 @@ func wsReadWrite(conn *websocket.Conn) {
 
 func main() {
 	// initialize variables
-	passenger_api = "http://localhost:5001/api/v1/passenger"
-	driver_api = "http://localhost:5002/api/v1/driver/"
+	passenger_api = "http://passenger-account:5001/api/v1/passenger"
+	driver_api = "http://driver-account:5002/api/v1/driver/"
 	activeTrips = make(map[string]tripDetails)
 	tripMap = make(map[string]string)
 	passengerQueue = make([]tripDetails, 0)

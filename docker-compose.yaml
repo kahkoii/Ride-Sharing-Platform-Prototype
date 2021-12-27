@@ -7,7 +7,7 @@ services:
       - db
       - passenger-account
       - driver-account
-    #   - MS3
+      - ride-matcher
     build:
       context: ./client
     container_name: frontend-sever
@@ -45,6 +45,16 @@ services:
     container_name: driver-ms
     ports:
       - 5002:5002
+  # Ride Matcher Microservice
+  ride-matcher:
+    depends_on:
+      - passenger-account
+      - driver-account
+    build:
+      context: ./microservices/RideMatcher
+    container_name: matcher-ms
+    ports:
+      - 5003:5003
 
 volumes:
   mysql-data:
